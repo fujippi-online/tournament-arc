@@ -1,0 +1,17 @@
+VIEW_HEIGHT = 11 #tiles
+VIEW_WIDTH = 13 #tiles
+
+#TILE_SIZE = 64
+#MESSAGE_LOG_HEIGHT = 300
+#HUD_WIDTH = 600
+#WIDTH = (TILE_SIZE+2) * VIEW_WIDTH + HUD_WIDTH
+#HEIGHT = (TILE_SIZE+2) * VIEW_HEIGHT + MESSAGE_LOG_HEIGHT
+
+CHUNK_SIZE = (30, 30)
+
+
+GAME_TITLE = "Tournament Arc"
+#EVENT_SHORTCUTS = {
+#    'keycode' : "key.keysym.sym"}
+
+
