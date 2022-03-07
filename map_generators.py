@@ -93,10 +93,10 @@ def single_level_dungeon(scene, width, height, num_rooms):
         r = (x,y,w,h)
         if none_intersect(room_areas, geometry.grow(r,2)):
             room_areas.append(r)
-            print geometry.grow(r,2), r
+            print(geometry.grow(r,2), r)
             rooms_planned += 1
-            print rooms_planned
-        else: print "discarded", r
+            print(rooms_planned)
+        else: print("discarded", r)
     for rect in room_areas:
         room = Room(rect)
         rooms.append(room)
@@ -113,7 +113,7 @@ def single_level_dungeon(scene, width, height, num_rooms):
         room.door_locations.append(door1)
         closest_room.door_locations.append(door2)
         passages.append(Passage(door1, door2, width=2))
-        print room.rect, closest_room.rect, door1, door2
+        print(room.rect, closest_room.rect, door1, door2)
     for passage in passages:
         passage.place(scene)
     for room in rooms:
@@ -149,7 +149,7 @@ def box_o_boxes(scene, width, height, num_boxes):
         p = rint(10, height), rint(10,width)
         blood_path = path(background,(5,5), p)
         tries += 1
-        print tries
+        print(tries)
     for point in blood_path:
         background.tiles[point] = roguemap.t_blood
     for i in range(1, width):

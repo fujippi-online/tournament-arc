@@ -13,7 +13,7 @@ KEY_BINDS = {
 }
 
 def tag_key(term, key):
-    for key_name in DIRECTIONS.keys():
+    for key_name in list(DIRECTIONS.keys()):
         if key.code == getattr(term, key_name):
             return key_name
         elif key_name == key:

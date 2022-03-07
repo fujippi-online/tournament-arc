@@ -37,8 +37,7 @@ def scatter_patches(scene, chunk, tile, size, amount):
             scene.background.fill_rect(tile, patch_rect)
 
 def nearby_free_point(scene, point, radius):
-    free_points = filter(lambda p: not scene.background[p].blocks,
-            geometry.iter_circle(point, radius))
+    free_points = [p for p in geometry.iter_circle(point, radius) if not scene.background[p].blocks]
     return random.choice(free_points)
 
 def variations(scene, chunk, tile, variations):

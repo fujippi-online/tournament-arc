@@ -25,7 +25,7 @@ class Calendar:
         return Calendar.weekdays[self.current_time.weekday()]
     def render(self, x, y):
         with core.term.location(x, y):
-            print str(self.current_time.time()), self.current_day()
+            print(str(self.current_time.time()), self.current_day())
 
 calendar = Calendar()
 

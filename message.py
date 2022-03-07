@@ -18,7 +18,7 @@ class MessageLog:
     def render(self, term):
         with term.location(0, MESSAGE_Y):
             for message in self.messages:
-                print message+term.clear_eol
+                print(message+term.clear_eol)
         self.read()
     def read(self):
         self.unread = 0

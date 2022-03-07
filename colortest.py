@@ -11,6 +11,6 @@ colors = ['black',
         'white']
 for n in colors:
     color = getattr(term, n)
-    print(color+'{}'.format(n))
+    print((color+'{}'.format(n)))
     bright_color = getattr(term, 'bright_'+n)
-    print(bright_color+'{}'.format('bright_'+n))
+    print((bright_color+'{}'.format('bright_'+n)))

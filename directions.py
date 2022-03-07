@@ -37,7 +37,7 @@ def compass_direction(origin, destination):
     angle = angle_between_lines(north_line, (origin, destination))
     if angle < 180 and ox - dstx > 0:
         angle += 180
-    print angle
+    print(angle)
     direction = "north"
     if angle > 45: direction = "east"
     if angle > 135: direction = "south"

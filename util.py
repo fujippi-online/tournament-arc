@@ -1,5 +1,5 @@
 import functools
-from UserList import UserList
+from collections import UserList
 
 #class once:
 #    def __init__(self, f):

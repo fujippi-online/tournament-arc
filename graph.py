@@ -8,7 +8,7 @@ class TreeNode:
         self.children = children
     def print_tree(self):
         for child in self.children:
-            print "{} -> {}".format(self.content, child.content)
+            print("{} -> {}".format(self.content, child.content))
             child.print_tree()
 def tree_traversal(graph, root = None):
     """
@@ -17,14 +17,14 @@ def tree_traversal(graph, root = None):
     graph[a] -> neighbours of a
     """
     if not root:
-        root = random.choice(graph.keys())
+        root = random.choice(list(graph.keys()))
     root_node = TreeNode(root, [])
     frontier = deque([root_node])
     explored = set([root])
     while frontier:
         exploring = frontier.pop()
         neighbours = graph[exploring.content]
-        for n in filter(lambda x: x not in explored, neighbours):
+        for n in [x for x in neighbours if x not in explored]:
             child = TreeNode(n, [])
             frontier.appendleft(child)
             exploring.children.append(child)

@@ -3,7 +3,6 @@ import string
 
 import message
 import control
-from inventory import Item
 from util import once
 
 class Door:
@@ -83,12 +82,11 @@ prefixes = [
 def make_key_type():
     return random.choice(prefixes) + " " + random.choice(materials)
 
-class Key(Item):
+class Key:
     symbol = "?"
     color = "magenta"
     blocks = True
     def __init__(self, key_type, position = (0,0)):
-        Item.__init__(self, position = position)
         self.key_type = key_type
         self.name = string.capwords(key_type) + " Key"
     def inspect(self, scene):

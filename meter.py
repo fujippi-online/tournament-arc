@@ -15,15 +15,15 @@ class Meter:
     def render(self):
         color = getattr(term, self.color)
         with term.location(self.x, self.y):
-            print(str(self.name)+": "+str(self.current)+"/"+str(self.maximum))
+            print((str(self.name)+": "+str(self.current)+"/"+str(self.maximum)))
         if self.maximum < 10:
             with term.location(self.x, self.y+1):
-                print(color("="*self.current)+term.bright_black("-"*self.used))
+                print((color("="*self.current)+term.bright_black("-"*self.used)))
         else:
             remaining = int(self.portion*10)
             used = 10 - remaining
             with term.location(self.x, self.y+1):
-                print(color("="*remaining)+term.bright_black("-"*used))
+                print((color("="*remaining)+term.bright_black("-"*used)))
     def __iadd__(self, other):
         self.current += other
         return self

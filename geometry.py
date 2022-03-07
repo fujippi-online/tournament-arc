@@ -133,11 +133,12 @@ def rect_center(rect):
     x,y,w,h = rect
     return (x+w/2, y+h/2)
 
-def rect_grid_translate(rect, (dx, dy)):
+def rect_grid_translate(rect, xxx_todo_changeme):
     """
     Presuming that the rect is part of a grid of cells of the same size of
     itself that do not overlap, move it [dx, dy] in grid space.
     """
+    (dx, dy) = xxx_todo_changeme
     rx, ry, w, h = rect
     return (rx+(w*dx), ry +(h*dy), w, h)
 

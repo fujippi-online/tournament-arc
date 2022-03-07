@@ -2,9 +2,7 @@ import time
 
 import message
 import geometry
-import tiles
 import settings
-import palette
 from core import DIRECTIONS, term
 
 DONE = object()
@@ -19,7 +17,7 @@ def takeover(game_process):
         return sdl_takeover(game_process)
 
 def term_takeover(game_process):
-    print(term.clear)
+    print((term.clear))
     result = game_process.update(NoKey())
     if hasattr(game_process, "initial_render"):
         game_process.initial_render()
@@ -34,7 +32,7 @@ def term_takeover(game_process):
 
 
 def tag_key(term, key):
-    for key_name in DIRECTIONS.keys():
+    for key_name in list(DIRECTIONS.keys()):
         if key.code == getattr(term, key_name):
             return key_name
         elif key_name == key:
@@ -75,7 +73,7 @@ class TargetPicker:
         self.scene.render()
         camera = self.scene.camera
         with term.location(*camera.adjust(*self.cursor_pos)):
-            print term.white_on_white("_")
+            print(term.white_on_white("_"))
 
 
 

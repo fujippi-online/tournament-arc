@@ -64,10 +64,10 @@ class Map:
         """
         Return a rect respresenting the map's bounds.
         """
-        min_x = sys.maxint
-        min_y = sys.maxint
-        max_x = -sys.maxint
-        max_y = -sys.maxint
+        min_x = sys.maxsize
+        min_y = sys.maxsize
+        max_x = -sys.maxsize
+        max_y = -sys.maxsize
         for point in self:
             x, y = point
             if x > max_x: max_x = x
@@ -106,8 +106,7 @@ class Map:
                 if not self[p].blocks:
                     return p
             new_neighbours = [self.adjacent(p) for p in neighbours]
-            neighbours = list(filter(lambda p: p not in neighbours,
-                new_neighbours))
+            neighbours = list([p for p in new_neighbours if p not in neighbours])
     def write_chunk(self, x, y, chunk):
         for dy, row in enumerate(chunk):
             for dx, tile in enumerate(row):

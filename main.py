@@ -1,18 +1,13 @@
 import sys
 
 import blessed
-import dill
 
 import roguemap
 import message
 import map_generators
 import geometry
-import inventory
-import weapon
-import spells
 import menu
 import inspect_scene
-import core_topics
 import game_time
 
 from settings import VIEW_WIDTH, VIEW_HEIGHT
@@ -26,6 +21,7 @@ class Hero(Character):
     name = "You"
     symbol = "@"
     color = "blue_on_white"
+    inventory = []
     is_hero = True
     vision_range = 8
     def say(self, spoken_message):
@@ -186,7 +182,7 @@ class Scene:
         hero = self.hero
         with term.location(*camera.adjust(hero.x, hero.y)):
             color = getattr(term, hero.color)
-            print(color(hero.symbol))
+            print((color(hero.symbol)))
             object_positions.add(hero.position)
         for thing in self.foreground:
             if geometry.point_in_rect(camera.rect, thing.position):
@@ -203,9 +199,9 @@ class Scene:
                         else:
                             color = getattr(term, thing.color+"_on_bright_black")
                         if hasattr(thing, 'body_parts'):
-                            print(color(term.on_white(thing.symbol)))
+                            print((color(term.on_white(thing.symbol))))
                         else:
-                            print(color(thing.symbol))
+                            print((color(thing.symbol)))
                     if hasattr(thing, 'seen'):
                         thing.seen()
                     thing.last_seen = thing.position
@@ -217,7 +213,7 @@ class Scene:
                             thing.last_seen))):
                     sx, sy = camera.adjust(*thing.last_seen)
                     with term.location(sx, sy):
-                        print(term.bright_black_on_black(thing.symbol))
+                        print((term.bright_black_on_black(thing.symbol)))
                     object_positions.add(thing.last_seen)
         visible_tiles = self.background.submap(*camera.rect)
         x = 0
@@ -231,22 +227,22 @@ class Scene:
                         with term.location(x,y):
                             self.seen.add((wx, wy))
                             t_color = getattr(term, tile.color)
-                            print(term.on_bright_black(t_color(tile.symbol)))
+                            print((term.on_bright_black(t_color(tile.symbol))))
                     else:
                         with term.location(x,y):
                             if (wx, wy) in self.seen:
-                                print(term.bright_black_on_black(tile.symbol))
+                                print((term.bright_black_on_black(tile.symbol)))
                             else:
-                                print(term.on_black(' '))
+                                print((term.on_black(' ')))
                 y += 1
             x += 1
         game_time.calendar.render(VIEW_WIDTH + 2, 4)
         with term.location(VIEW_WIDTH+2, 6):
-            print hero.position
+            print(hero.position)
         i = 1
         for line in range(i+6, VIEW_HEIGHT+6):
            with term.location(VIEW_WIDTH+1, line):
-               print term.clear_eol
+               print(term.clear_eol)
 
 if __name__ == '__main__':
     import time
@@ -274,7 +270,7 @@ if __name__ == '__main__':
         takeover(TitleScreen())
         if new_game:
             history.make_hero(game)
-            print term.clear
+            print(term.clear)
         game.render()
         message.log.render(term)
         while True:

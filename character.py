@@ -4,9 +4,6 @@ from collections import defaultdict
 from itertools import product
 
 import message
-import weapon
-import death
-import fatigue
 import pronouns
 
 from geometry import distance
@@ -42,7 +39,7 @@ class Character:
     def move_away_from(self, scene, point):
         gaps = scene.background.adjacent(self.position) 
         gaps.append(self.position)
-        steps = filter(lambda p: scene.passable(*p), gaps)
+        steps = [p for p in gaps if scene.passable(*p)]
         step = max(steps, key = lambda p: distance(p, point))
         if step:
             self.x, self.y = step

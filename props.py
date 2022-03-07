@@ -6,7 +6,7 @@ import core
 class Smoke:
     name = "Smoke"
     color = "black"
-    symbol = unichr(167)
+    symbol = chr(167)
     blocks = False
     clear = False
     def __init__(self, x, y, time):
