@@ -1,2 +1,6 @@
 *.bak
 *.pyc
+build/
+dist/
+*.spec
+*.swp
