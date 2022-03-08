@@ -156,7 +156,6 @@ def box_o_boxes(scene, width, height, num_boxes):
         for j in range(1, height):
             if is_doorway(background, (i, j)):
                 foreground.append(door.Door(i,j))
-    foreground.append(character.Monster(*blood_path[-1]))
     scene.foreground = foreground
     scene.background = background
     return scene

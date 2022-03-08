@@ -13,8 +13,6 @@ class NoKey:
 def takeover(game_process):
     if settings.ENGINE_MODE == "TERM":
         return term_takeover(game_process)
-    elif settings.ENGINE_MODE == "SDL":
-        return sdl_takeover(game_process)
 
 def term_takeover(game_process):
     print((term.clear))
@@ -66,8 +64,6 @@ class TargetPicker:
                 self.cursor_pos = (cx + dx, cy + dy)
         elif key_name == "KEY_ENTER" or key_name == "confirm":
             self.highlight.select()
-            if settings.ENGINE_MODE == "SDL":
-                animate(self, settings.FPS/4)
             return self.cursor_pos
     def render(self):
         self.scene.render()

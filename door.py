@@ -3,6 +3,7 @@ import string
 
 import message
 import control
+from inventory import Item
 from util import once
 
 class Door:
@@ -82,7 +83,7 @@ prefixes = [
 def make_key_type():
     return random.choice(prefixes) + " " + random.choice(materials)
 
-class Key:
+class Key(Item):
     symbol = "?"
     color = "magenta"
     blocks = True

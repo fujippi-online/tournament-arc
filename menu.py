@@ -22,6 +22,10 @@ def draw_textbox(rect, paragraphs):
     inner_rect = geometry.grow_y(geometry.grow_x(rect, -2), -1)
     x,y,w,h = inner_rect
     wrapped_lines = []
+    x = int(x)
+    y = int(y)
+    w = int(w)
+    h = int(h)
     for paragraph in paragraphs:
         wrapped_paragraph = textwrap.wrap(paragraph, w)
         wrapped_lines.extend(wrapped_paragraph)
@@ -142,12 +146,12 @@ class InfoPanelMenu:
         self.x, self.y = (0, 0)
         self.scene = scene
         self.item_names, self.menu_actions = list(zip(*menu_entries))
-        self.entry_width = VIEW_WIDTH/2
+        self.entry_width = VIEW_WIDTH//2
         self.title = title
         self.info_fields = info_fields
     def submenu(self, menu_entries):
         num_lines = VIEW_HEIGHT - VERTICAL_PADDING
-        lower_bound = max(self.cursor_pos - (num_lines / 2), 0)
+        lower_bound = max(self.cursor_pos - (num_lines // 2), 0)
         cursor_height = self.cursor_pos - lower_bound + 2
         return FloatingMenu(self, self.entry_width+1, cursor_height,
                 menu_entries)
@@ -194,7 +198,7 @@ class InfoPanelMenu:
             display_list = self.item_names
             lower_bound = 0
         else:
-            lower_bound = max(self.cursor_pos - (num_lines / 2), 0)
+            lower_bound = max(self.cursor_pos - (num_lines // 2), 0)
             upper_bound = min(lower_bound + num_lines, len(self.item_names))
             display_list = self.item_names[lower_bound:upper_bound]
         item_padding = tuple([""]*(num_lines - len(display_list)))

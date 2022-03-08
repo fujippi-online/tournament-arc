@@ -5,11 +5,6 @@ KEY_BINDS = {
         'i' : 'inventory',
         'a' : 'interact_local',
         's' : 'inspect_scene',
-        'd' : 'dialogue',
-        'z' : 'ability_z',
-        'x' : 'ability_x',
-        'c' : 'ability_c',
-        'v' : 'ability_v',
 }
 
 def tag_key(term, key):
@@ -33,9 +28,9 @@ def _get_signal():
         return key_name
     else:
         return key
-
+class Signal:
+    def __init__(self, name):
+        self.name = name
 def get_signal():
-    signal = object()
     name = _get_signal()
-    signal.name = name
-    return signal
+    return Signal(name)

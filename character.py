@@ -54,12 +54,6 @@ class Character:
                 not scene.background[p].blocks)]
         if free_spots:
             self.x, self.y = random.choice(free_spots)
-    def action_hook(self, action_name, scene, **kwargs):
-        hook_name = "on_"+action_name
-        for stat in self.status:
-            hook  = getattr(stat, hook_name, None)
-            if hook:
-                hook(self, scene, **kwargs)
 
 class Follower(Character):
     color = "green"

@@ -30,7 +30,7 @@ class Hero(Character):
 
 DEFAULT_AMBIANCE = ["Things are going well."
         ]
-class Scene:
+class MapScene:
     def __init__(self, ambiance = DEFAULT_AMBIANCE):
         self.background = roguemap.Map()
         self.foreground = []
@@ -95,20 +95,16 @@ class Scene:
             if self.passable(*new_tile):
                 hero.x += dx
                 hero.y += dy
-                hero.energy -= 1
             else:
                 for thing in self.things_at(*new_tile):
                     if hasattr(thing, 'interact'):
                         thing.interact(self)
-            self.hero.action_hook("move", self)
         elif hasattr(self, signal.name):
             getattr(self, signal.name)()
     def quit(self):
         quit_menu = menu.FloatingMenu(self, 2, 1, [
             ("Resume", lambda: None),
-            ("Spells", lambda: self.spells()),
             ("Items", lambda: self.inventory()),
-            ("Save", lambda: self.save()),
             ("Quit", lambda: sys.exit()),
             ], title = "Quit?")
         takeover(quit_menu)
@@ -144,8 +140,6 @@ class Scene:
             if hasattr(thing, 'update'):
                 thing.update(self)
         self.hero.update(self)
-        if self.hero.conversation:
-            self.hero.conversation.update()
         for u in self.undercoat:
             u.update(self)
         self.camera.center_on(self.hero)
@@ -156,26 +150,6 @@ class Scene:
         game_time.calendar.update()
     def destroy(self, other):
         self.to_remove.append(other)
-    def ability_z(self):
-        try:
-            self.hero.spells['z'].cast(self)
-        except KeyError:
-            pass
-    def ability_x(self):
-        try:
-            self.hero.spells['x'].cast(self)
-        except KeyError:
-            pass
-    def ability_c(self):
-        try:
-            self.hero.spells['c'].cast(self)
-        except KeyError:
-            pass
-    def ability_v(self):
-        try:
-            self.hero.spells['v'].cast(self)
-        except KeyError:
-            pass
     def render(self):
         camera = self.camera
         object_positions = set()
@@ -253,24 +227,10 @@ if __name__ == '__main__':
     import term_interpreter
     from title_screen import TitleScreen
     from undercoat import DynamicChunkMapGen, AreaGridChunkGen
-    #game = map_generators.dig_with_moles(Scene(), 200, 200, 30)
-    #game = Scene(ambiance = forest.map_generators.FOREST_AMBIANCE)
-    game = tutorial.map_generators.tutorial_cave(Scene())
-    #game.undercoat.append(game_time.TimeVisionUndercoat())
-    #world_map = world_map_generators.test_map(game)
-    #world_map = world_map_generators.endless_town(game)
-    #s = props.Chest(7, 7, [inventory.WeaponItem(weapon.Sword())])
-    #game.foreground.append(s)
-    #for point in geometry.iter_circle_border((5,5), 5):
-    #    game.background.tiles[point] = roguemap.t_flower
-    import inspect
-    import history
+    game = map_generators.box_o_boxes(MapScene(), 200, 200, 400)
     with term.fullscreen(), term.cbreak(), term.hidden_cursor(), term.keypad():
         message.log.render(term)
         takeover(TitleScreen())
-        if new_game:
-            history.make_hero(game)
-            print(term.clear)
         game.render()
         message.log.render(term)
         while True:
