@@ -7,6 +7,8 @@ import mon_bodies
 import adventure
 import profanityfilter
 
+from move_generator import generate_atk, generate_def, generate_fin
+
 syllable = nltk.tokenize.sonority_sequencing.SyllableTokenizer()
 detect_slurs = profanityfilter.ProfanityFilter()
 
@@ -18,7 +20,7 @@ class Species:
         self.type2 = None
         self.family = None
         self.variety = None
-        self.learned_abilities = []
+        self.learned_moves = []
         self.state_graphs = []
         self.generate()
     def generate(self):
@@ -43,6 +45,17 @@ class Species:
         descriptor = "".join(w1)
         self.description = "The "+ random.choice(self.type1.adjectives)+\
                 " " + descriptor + " " +self.variety
+        for i in range(8):
+            r = random.random()
+            if r < 0.4:
+                move = generate_atk(self.type1, self.type2) 
+                self.learned_moves.append(move)
+            elif r < 0.75:
+                move = generate_def(self.type1, self.type2) 
+                self.learned_moves.append(move)
+            else:
+                move = generate_fin(self.type1, self.type2) 
+                self.learned_moves.append(move)
 
 if __name__ == "__main__":
     for i in range(100):
@@ -50,4 +63,6 @@ if __name__ == "__main__":
         print(s.name)
         print(s.description)
         print(*tuple(set([s.type1.name, s.type2.name])))
+        for move in s.learned_moves:
+            print(move.name)
         print(" ")

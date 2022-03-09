@@ -82,10 +82,10 @@ MonType("Crime",
             "duffel bag"],
         hats = [])
 MonType("Boring",
-        nouns = ["plain", "normal", "meeting", "finger guns", "agenda",
+        nouns = ["drudgery","meeting", "finger guns", "agenda",
             "minutes", "waiting", "small talk", "paperwork", "data entry"],
         adjectives = ["pasty", "plain", "inane", "derivative", "boring",
-        "repetitive", "samey", "endless", "constant"],
+        "repetitive", "samey", "endless", "constant", "normal"],
         verbs = ["bore", "detain", "extend", "repeat", "drone"],
         held_items = ["item"],
         hats = ["hat"])
