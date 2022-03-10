@@ -26,4 +26,4 @@ BodyType("Avian",
             "claws", "feet", "tail", "legs", "beak"])
 BodyType("Cephalapod",
         ["octopus", "squid", "cuttlefish", "nautilus"],
-        ["tentacles", "eyes", "head", "mouth", "teeth", "suckers"])
+        ["tentacles", "eyes", "head", "maw", "suckers"])

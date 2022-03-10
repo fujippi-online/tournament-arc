@@ -4,12 +4,14 @@ import random
 import mon_types
 import move_types
 import mon_bodies
+import mon_states
 import adventure
 import profanityfilter
 
 from move_generator import generate_atk, generate_def, generate_fin
 
 syllable = nltk.tokenize.sonority_sequencing.SyllableTokenizer()
+# hopefully this will prevent it from accidentally naming any mon a slur
 detect_slurs = profanityfilter.ProfanityFilter()
 
 class Species:
@@ -20,8 +22,9 @@ class Species:
         self.type2 = None
         self.family = None
         self.variety = None
+        self.basic_moves = []
         self.learned_moves = []
-        self.state_graphs = []
+        self.state_templates = []
         self.generate()
     def generate(self):
         self.type1 = random.choice(adventure.current.types)
@@ -45,7 +48,7 @@ class Species:
         descriptor = "".join(w1)
         self.description = "The "+ random.choice(self.type1.adjectives)+\
                 " " + descriptor + " " +self.variety
-        for i in range(8):
+        for i in range(12):
             r = random.random()
             if r < 0.4:
                 move = generate_atk(self.type1, self.type2) 
@@ -56,6 +59,16 @@ class Species:
             else:
                 move = generate_fin(self.type1, self.type2) 
                 self.learned_moves.append(move)
+        self.basic_moves.append(generate_atk(self.type1, self.type2))
+        self.basic_moves.append(generate_atk(self.type1, self.type2))
+        self.basic_moves.append(generate_def(self.type1, self.type2))
+        self.basic_moves.append(generate_def(self.type1, self.type2))
+        self.basic_moves.append(generate_fin(self.type1, self.type2))
+        for i in range(5): 
+            mon_type = random.choice([self.type1, self.type2])
+            scale_type = random.choice(mon_states.scale_types)
+            adj = random.choice(mon_type.adjectives + mon_type.nouns)
+            self.state_templates.append((scale_type, mon_type, adj))
 
 if __name__ == "__main__":
     for i in range(100):
@@ -63,6 +76,9 @@ if __name__ == "__main__":
         print(s.name)
         print(s.description)
         print(*tuple(set([s.type1.name, s.type2.name])))
-        for move in s.learned_moves:
+        for armour in s.state_templates:
+            st, mt, adj = armour
+            print(adj, st.name)
+        for move in s.basic_moves:
             print(move.name)
         print(" ")

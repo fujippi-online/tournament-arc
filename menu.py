@@ -49,8 +49,41 @@ def draw_textbox(rect, paragraphs):
     with term.location(x,y+h+1):
         print(h_divider)
     
+class MessageBox:
+    def __init__(self, text, bg = None):
+        """
+        Text is split across multiple four line boxes.
+        Pressing keys goes to the next box.
+        """
+        self.bg = bg
+        self.x, self.y = 0, settings.VIEW_HEIGHT -2
+        self.w = settings.VIEW_WIDTH
+        self.h = 4
+        self.safety = False
+        wrapped_lines = textwrap.wrap(text, self.w-1)
+        n = self.h
+        # using list comprehension
+        pages = [wrapped_lines[i * n:(i + 1) * n]
+                    for i in range((len(wrapped_lines) + n - 1) // n )]
+        self.pages = ["\n".join(page) for page in pages]
+        self.current_page = 0
+    def update(self, key):
+        if not self.safety:
+            self.safety = True
+        else:
+            self.current_page += 1
+            if self.current_page >= len(self.pages):
+                    return control.DONE
+    def initial_render(self):
+        if self.bg:
+            self.bg.render()
+    def render(self):
+        if self.current_page < len(self.pages):
+            draw_textbox((self.x, self.y, self.w, self.h+2),
+                    [self.pages[self.current_page]])
+
 class FloatingMenu:
-    def __init__(self, scene, x, y, menu_entries, title = None):
+    def __init__(self, x, y, menu_entries, title = None, bg = None):
         """
         x,y is coords of topleft
         menu will resize to fit entries
@@ -58,10 +91,10 @@ class FloatingMenu:
         when an item is selected, the associated function is called
         then the menu closes
         """
+        self.bg = bg
         self.cursor_pos = 0
         self.entries = menu_entries
         self.x, self.y = x, y
-        self.scene = scene
         self.item_names, self.menu_actions = list(zip(*menu_entries))
         self.item_names = list(self.item_names)
         self.menu_actions = list(self.menu_actions)
@@ -98,7 +131,8 @@ class FloatingMenu:
             else:
                 return self.selected_entry
     def initial_render(self):
-        self.scene.render()
+        if self.bg:
+            self.bg.render()
     def render(self):
         x, y = self.x, self.y
         y_offset = 1
@@ -132,7 +166,7 @@ class FloatingMenu:
 TITLE_HEIGHT = 3
 VERTICAL_PADDING = 4
 class InfoPanelMenu:
-    def __init__(self, scene, menu_entries, title = "", info_fields = []):
+    def __init__(self, menu_entries, title = "", info_fields = []):
         """
         x,y is coords of topleft
         menu will resize to fit entries
@@ -144,7 +178,6 @@ class InfoPanelMenu:
         self.cursor_loop = len(menu_entries)
         self.entries = menu_entries
         self.x, self.y = (0, 0)
-        self.scene = scene
         self.item_names, self.menu_actions = list(zip(*menu_entries))
         self.entry_width = VIEW_WIDTH//2
         self.title = title

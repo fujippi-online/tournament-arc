@@ -102,11 +102,11 @@ class MapScene:
         elif hasattr(self, signal.name):
             getattr(self, signal.name)()
     def quit(self):
-        quit_menu = menu.FloatingMenu(self, 2, 1, [
+        quit_menu = menu.FloatingMenu(2, 1, [
             ("Resume", lambda: None),
             ("Items", lambda: self.inventory()),
             ("Quit", lambda: sys.exit()),
-            ], title = "Quit?")
+            ], title = "Quit?", bg = self)
         takeover(quit_menu)
     def inventory(self):
         chosen_action = "Cancel" 
@@ -117,7 +117,7 @@ class MapScene:
             symbol = "Q"
             color = "red"
         inventory_items.append(("Quit", Quit()))
-        inventory_menu = menu.InfoPanelMenu(self, inventory_items,
+        inventory_menu = menu.InfoPanelMenu(inventory_items,
                 title = "Inventory", info_fields = ["name", "symbol"])
         possible_actions = [
                 ("Use", "Use"),
@@ -231,6 +231,23 @@ if __name__ == '__main__':
     with term.fullscreen(), term.cbreak(), term.hidden_cursor(), term.keypad():
         message.log.render(term)
         takeover(TitleScreen())
+        title_message = menu.MessageBox("\n".join([
+            "Welcome to the world of MONS.",
+            "Monsters are everywhere and you are one of them.",
+            "Being a monster is great and fun.",
+            "You are a special kind of monster.",
+            "You are a COACH.",
+            "You can only become stronger by making the monsters",
+            "around you become strong.",
+            "Many MONs love to be strong and to FIGHT.",
+            "Help the MONs that love to fight to become strong, and",
+            "succeed at the sport of competitive fighting.",
+            "But be careful - you will need to build up the SELF-CONFIDENCE",
+            "of your comrades and earn their TRUST to succeed.",
+            "Remember, each MON is different, and so are you.",
+            "Good luck!",
+            ]), bg = game)
+        takeover(title_message)
         game.render()
         message.log.render(term)
         while True:
