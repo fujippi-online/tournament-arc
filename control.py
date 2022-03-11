@@ -20,12 +20,10 @@ def term_takeover(game_process):
     if hasattr(game_process, "initial_render"):
         game_process.initial_render()
     game_process.render()
-    message.log.render(term)
     while result == None:
         key = term.inkey()
         result = game_process.update(key)
         game_process.render()
-        message.log.render(term)
     return result
 
 
@@ -63,7 +61,6 @@ class TargetPicker:
             else:
                 self.cursor_pos = (cx + dx, cy + dy)
         elif key_name == "KEY_ENTER" or key_name == "confirm":
-            self.highlight.select()
             return self.cursor_pos
     def render(self):
         self.scene.render()

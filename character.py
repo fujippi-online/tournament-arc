@@ -22,12 +22,6 @@ class Character:
         self.y = y
     def update(self, scene):
         pass
-    def ko_message(self):
-        msg = "The {} collapses.".format(self.name)
-        message.log.post(msg)
-    def skill_check(self, skill, bar):
-        result = self.roll_skill(skill)
-        return result >= bar
     @property
     def position(self):
         return self.x, self.y
@@ -59,8 +53,8 @@ class Follower(Character):
     color = "green"
     symbol = "F"
     name = "follower"
-    def __init__(self, *args, **kwargs):
-        Character.__init__(self, *args, **kwargs)
+    def __init__(self, x, y):
+        Character.__init__(self, x, y)
         self.move_speed = 0.6
         self.move_phase = 0
     def update(self, scene):
@@ -70,9 +64,9 @@ class Follower(Character):
             self.move_towards(scene, scene.hero.position)
             self.move_phase -= 1 
     def interact(self, scene):
-        message.log.post("Guy: HEY BUDDY LET'S BE FRIENDS")
+        message.log.post("Guy: ")
     @once
     def seen(self):
-        message.log.post("FUCK, IT'S THAT GUY. He's covered in blood.")
+        message.log.post("Uh oh.")
 
 

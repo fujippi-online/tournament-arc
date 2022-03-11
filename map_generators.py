@@ -10,6 +10,11 @@ import geometry
 import door
 import character
 import message
+import battle
+import map_util
+import adventure
+from mons import Mon
+from battle import BattleTeam, BattleLeader, BattleMember
 
 def none_intersect(rects, r1):
     for r2 in rects:
@@ -158,4 +163,48 @@ def box_o_boxes(scene, width, height, num_boxes):
                 foreground.append(door.Door(i,j))
     scene.foreground = foreground
     scene.background = background
+    return scene
+
+
+def battle_city(scene, width, height, num_boxes):
+    foreground = []
+    background = roguemap.Map()
+    scene.foreground = foreground
+    scene.background = background
+    boxes_left = num_boxes
+    placed_boxes = []
+    background.fill_rect(roguemap.t_road, (0, 0, width, height))
+    map_util.scatter(scene, (1,1,width-2,height-2), roguemap.t_grass,
+            (width*height)//3)
+    background.draw_rect(roguemap.t_wall, (0, 0, width, height))
+    rint = random.randint
+    while boxes_left > 0:
+        box = (rint(1, width),
+                rint(1, height),
+                rint(2,9),
+                rint(2,9)) 
+        if none_intersect(placed_boxes, box) and\
+                not geometry.point_in_rect(box, (5,5)):
+            placed_boxes.append(box)
+            boxes_left -= 1
+            background.fill_rect(roguemap.t_floor, box)
+            background.draw_rect(roguemap.t_wall, box)
+            x,y,w,h = box
+            background.tiles[x+(w//2),y+h] = roguemap.t_floor
+            foreground.append(door.Door(x+(w//2),y+h))
+            background.tiles[x+(w//2),y] = roguemap.t_floor
+            foreground.append(door.Door(x+(w//2),y))
+            if w>5 and h>4 and random.random() > 0.5:
+                flag = BattleTeam()
+                leader_mon = Mon(random.choice(adventure.current.mons))
+                team_mons = [Mon(random.choice(adventure.current.mons))
+                        for i in range(3)]
+                team = list([BattleMember(0,0,mon,flag) for mon in team_mons])
+                team.append(BattleLeader(x,y,leader_mon,flag))
+                for member in team:
+                    map_util.place_item(scene, box, member)
+    for i in range(1, width):
+        for j in range(1, height):
+            if is_doorway(background, (i, j)):
+                foreground.append(door.Door(i,j))
     return scene

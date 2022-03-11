@@ -1,5 +1,6 @@
 class StateScale:
     def __init__(self, name, states, mon_type, scale_type):
+        self.name = name
         self.states = tuple(states)
         self.current_state = 1
         self.mon_type = mon_type
@@ -9,6 +10,9 @@ class StateScale:
         self.current_state += damage 
         if current_state > len(self.states):
             current_state = len(self.states)
+    def description(self):
+        return (self.name.capitalize() + ": " +
+            self.state_descriptor().capitalize())
 scale_types = []
 
 class ScaleType:
@@ -41,7 +45,7 @@ body = ScaleType("body",
 scale_types.remove(body) #not randomly generated bc you can only have one.
 
 def make_scale(scale_type, mon_type, adjective, length):
-    name = adjective + scale_type.name
+    name = adjective + " " + scale_type.name
     states = list(scale_type.states[-length:])
     return StateScale(name, states, mon_type, scale_type)
 

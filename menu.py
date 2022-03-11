@@ -46,7 +46,7 @@ def draw_textbox(rect, paragraphs):
     for dy, line in enumerate(padded_lines):
         with term.location(x, y+dy):
             print(line)
-    with term.location(x,y+h+1):
+    with term.location(x,y+h):
         print(h_divider)
     
 class MessageBox:
@@ -90,6 +90,8 @@ class FloatingMenu:
         menu_entries is a list of tuples mapping entry titles to functions
         when an item is selected, the associated function is called
         then the menu closes
+        ALSO WORKS ON NON-CALLABLES, WHICH IT JUST RETURNS VIA control.takeover
+        WHY DID ME FROM THE PAST NOT DOCUMENT THIS SMH
         """
         self.bg = bg
         self.cursor_pos = 0
@@ -122,9 +124,8 @@ class FloatingMenu:
                 self.cursor_pos = self.cursor_loop -1
             if self.cursor_pos >= self.cursor_loop:
                 self.cursor_pos = 0
-
         if key_name == "KEY_ENTER" or key == "z" or key_name == "confirm"\
-                or key_name == "ability_z":
+                or key_name == "ability_z" or key == "a":
             if callable(self.selected_entry):
                 self.selected_entry()
                 return control.DONE
@@ -205,7 +206,7 @@ class InfoPanelMenu:
             if self.cursor_pos >= self.cursor_loop:
                 self.cursor_pos = 0
         if key_name == "KEY_ENTER" or key == "z" or key_name == "confirm"\
-                or key_name == "ability_z":
+                or key_name == "ability_z" or key == "a":
             if callable(self.selected_entry):
                 self.selected_entry()
                 return control.DONE

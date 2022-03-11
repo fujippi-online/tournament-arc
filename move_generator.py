@@ -11,6 +11,7 @@ class Move:
         self.type2 = type2
         self.move_type = move_type
         self.strong_vs = []
+        self.resisted_by = []
         self.on_success = None
 def noun1_nounmov(type1, type2, movetype):
     name = (random.choice(type1.nouns) + " " 

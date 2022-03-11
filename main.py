@@ -43,6 +43,9 @@ class MapScene:
         self.to_remove = []
         self.ambiance = ambiance
         self.transition_with = None
+    def show_message(self, lines):
+        msgbox = menu.MessageBox(lines, bg = self)
+        takeover(msgbox)
     def blocks_sight(self, x, y):
         for thing in self.things_at(x,y):
             if not thing.clear:
@@ -227,7 +230,7 @@ if __name__ == '__main__':
     import term_interpreter
     from title_screen import TitleScreen
     from undercoat import DynamicChunkMapGen, AreaGridChunkGen
-    game = map_generators.box_o_boxes(MapScene(), 200, 200, 400)
+    game = map_generators.battle_city(MapScene(), 200, 200, 400)
     with term.fullscreen(), term.cbreak(), term.hidden_cursor(), term.keypad():
         message.log.render(term)
         takeover(TitleScreen())
@@ -252,11 +255,11 @@ if __name__ == '__main__':
         message.log.render(term)
         while True:
             game.update(term_interpreter.get_signal())
+            message.log.render(term)
             game.render()
             if game.transition_with:
                 next_scene = game.transition_with
                 game.transition_with = None
                 game = next_scene
                 game.render()
-            message.log.render(term)
 

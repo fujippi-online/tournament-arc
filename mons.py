@@ -24,11 +24,11 @@ class Mon:
         self.finishers = []
         self.finisher_cap = 2
         for move in species.basic_moves:
-            if move.move_type == ATK:
+            if move.move_type.action == ATK:
                 self.attacks.append(move)
-            elif move.move_type == DEF:
+            elif move.move_type.action == DEF:
                 self.defences.append(move)
-            elif move.move_type == FIN:
+            elif move.move_type.action == FIN:
                 self.finishers.append(move)
         self.unlearned_moves = list(species.learned_moves)
         body_type = random.choice((self.type1, self.type2))
