@@ -17,13 +17,18 @@ VIEW_RIGHT = (0+settings.BAT_WIDTH//2,0,settings.BAT_WIDTH//2,
 def calc_damage(mon, atk, defns, state):
     damage = 2
     if state.mon_type in atk.strong_vs:
-        damage += 1
+        damage += 2
     if state.mon_type in atk.resisted_by:
-        damage -= 1
+        damage -= 2
+    first_def = True
     if defns:
         for def_type in defns.strong_vs:
             if atk.type1 == def_type or atk.type2 == def_type:
-                damage -= 1
+                if first_def:
+                    damage -= 2
+                    first_def = False
+                else:
+                    damage -= 1
     if damage > 6:
         damage = 6
     if damage < 0:
@@ -53,6 +58,7 @@ class TeamBattle:
     def update(self, key):
         self.player_actions = []
         self.opp_actions = []
+        actions_picked = 0
         action_menu = menu.FloatingMenu(0,settings.VIEW_HEIGHT-1,[
             ("Attack", "atk"),
             ("Defend", "def"),
@@ -60,40 +66,68 @@ class TeamBattle:
             ("Tag-out","tag"),
             ("Forfiet","for"),
             ], bg = self)
+        cancel_option = [("Cancel", "x")]
         mon = self.current_mon
-        for i in range(2):
+        while actions_picked < 2:
             action = takeover(action_menu)
             if action == "atk":
-                action_menu.remove(("Attack", "atk"))
                 options =  list([(move.name, move) for move in mon.attacks])
+                options += cancel_option
                 move_menu = menu.FloatingMenu(0, settings.VIEW_HEIGHT, 
                         options, bg = self)
-                self.player_actions.append(takeover(move_menu))
+                move = takeover(move_menu)
+                if move != "x":
+                    self.player_actions.append(move)
+                    actions_picked += 1
+                    action_menu.remove(("Attack", "atk"))
             elif action == "def":
-                action_menu.remove(("Defend", "def"))
                 options =  list([(move.name, move) for move in mon.defences])
+                options += cancel_option
                 move_menu = menu.FloatingMenu(0, settings.VIEW_HEIGHT, 
                         options, bg = self)
-                self.player_actions.append(takeover(move_menu))
+                move = takeover(move_menu)
+                if move != "x":
+                    self.player_actions.append(move)
+                    actions_picked += 1
+                    action_menu.remove(("Defend", "def"))
             elif action == "fin":
-                action_menu.remove(("Finish", "fin"))
                 options =  list([(move.name, move) for move in mon.finishers])
+                options += cancel_option
                 move_menu = menu.FloatingMenu(0, settings.VIEW_HEIGHT, 
                         options, bg = self)
-                self.player_actions.append(takeover(move_menu))
+                move = takeover(move_menu)
+                if move != "x":
+                    self.player_actions.append(move)
+                    actions_picked += 1
+                    action_menu.remove(("Finish", "fin"))
             elif action == "tag":
-                action_menu.remove(("Tag-out", "tag"))
                 options =  list([(teammate.name, teammate) 
                     for teammate in adventure.current.party 
                     if teammate != self.current_mon and teammate.can_battle])
+                options += cancel_option
                 move_menu = menu.FloatingMenu(0, settings.VIEW_HEIGHT-1, 
                         options, bg = self)
-                self.player_tag = takeover(move_menu)
+                move = takeover(move_menu)
+                if move != "x":
+                    self.player_tag = takeover(move_menu)
+                    actions_picked += 1
+                    action_menu.remove(("Tag-out", "tag"))
             elif action == "for":
-                self.show_message("You forfeit the battle!")
-                for mon in adventure.current.party:
-                    mon.morale -= 1
-                return "LOSS"
+                options = [
+                        ("Forfeit", "yes"),
+                        ("Actually, maybe not", "x")
+                        ]
+                move_menu = menu.FloatingMenu(0, settings.VIEW_HEIGHT-1, 
+                        options, bg = self)
+                move = takeover(move_menu)
+                if move != "x":
+                    self.player_tag = takeover(move_menu)
+                    actions_picked += 1
+                    action_menu.remove(("Tag-out", "tag"))
+                    self.show_message("You forfeit the battle!")
+                    for mon in adventure.current.party:
+                        mon.morale -= 1
+                    return "LOSS"
         #OPP decision making (lol)
         tag_options =  list([(teammate.name, teammate) 
             for teammate in adventure.current.party 
@@ -163,7 +197,6 @@ class TeamBattle:
             else:
                 self.current_opp = random.choice(options)
                 self.show_message(self.current_opp.name + " stood up to fight.")
-
     def do_fin(self, actor, actions, defender, defns):
         if not actor.can_battle:
             return
@@ -230,13 +263,16 @@ class TeamBattle:
                         " tried to defend with " + opp_def.name)
             self.show_message("It's a " +
                     random.choice(damage_descriptors[damage]) + " hit!")
+            hit_state.do_damage(damage)
+            self.show_message(self.current_opp.name+"'s " + hit_state.name + 
+                    " is " + hit_state.state_descriptor() + ".")
+        elif opp_def == None:
+            self.show_message(hit_state.name + 
+                    " resisted the attack")
         else:
-            self.show_message(self.current_opp + "'s " 
-                    + opp_def.name + " "+
+            self.show_message(self.current_opp.name + "'s " 
+                    + opp_def.name + " "
                     + random.choice(opp_def.move_type.verbs) +" the attack.") 
-        hit_state.do_damage(damage)
-        self.show_message(self.current_opp.name+"'s " + hit_state.name + 
-                " is " + hit_state.state_descriptor() + ".")
     def do_opp_attack(self):
         if not self.current_opp.can_battle:
             return
@@ -267,13 +303,17 @@ class TeamBattle:
                         " tried to defend with " + player_def.name)
             self.show_message("It's a " +
                     random.choice(damage_descriptors[damage]) + " hit!")
+            hit_state.do_damage(damage)
+            self.show_message(self.current_mon.name+"'s " + hit_state.name + 
+                    " is " + hit_state.state_descriptor() + ".")
+        elif player_def == None:
+            self.show_message(hit_state.name + 
+                    " resisted the attack")
         else:
-            self.show_message(self.current_mon + "'s " 
-                    + player_def.name + " "+
-                    + random.choice(player_def.move_type.verbs) +" the attack.") 
-        hit_state.do_damage(damage)
-        self.show_message(self.current_mon.name+"'s " + hit_state.name + 
-                " is " + hit_state.state_descriptor() + ".")
+            self.show_message(self.current_mon.name + "'s " 
+                    + player_def.name + " " 
+                    + random.choice(player_def.move_type.verbs) +
+                    " the attack.") 
     def render(self):
         player_info = [
                 self.current_mon.name,

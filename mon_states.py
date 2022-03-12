@@ -28,7 +28,7 @@ ScaleType("aura",
 ScaleType("armour",
         ["enchanted","reinforced", "strong", "intact", "damaged", "broken"]
         )
-ScaleType("tactics",
+ScaleType("tactic",
         ["inpenetrable","dominant", "powerful", "strong", "effective",
             "predictable"]
         )
