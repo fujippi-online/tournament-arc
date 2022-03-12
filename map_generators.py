@@ -167,14 +167,17 @@ def box_o_boxes(scene, width, height, num_boxes):
 
 
 def battle_city(scene, width, height, num_boxes):
+    print("Generating city...")
     foreground = []
     background = roguemap.Map()
     scene.foreground = foreground
     scene.background = background
     boxes_left = num_boxes
     placed_boxes = []
-    background.fill_rect(roguemap.t_road, (0, 0, width, height))
+    background.fill_rect(roguemap.t_dirt, (0, 0, width, height))
     map_util.scatter(scene, (1,1,width-2,height-2), roguemap.t_grass,
+            (width*height)//3)
+    map_util.scatter(scene, (1,1,width-2,height-2), roguemap.t_moss,
             (width*height)//3)
     background.draw_rect(roguemap.t_wall, (0, 0, width, height))
     rint = random.randint
@@ -206,5 +209,6 @@ def battle_city(scene, width, height, num_boxes):
     for i in range(1, width):
         for j in range(1, height):
             if is_doorway(background, (i, j)):
-                foreground.append(door.Door(i,j))
+                pass
+                #foreground.append(door.Door(i,j))
     return scene

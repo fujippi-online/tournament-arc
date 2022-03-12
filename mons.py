@@ -17,6 +17,7 @@ class Mon:
         self.self_confidence = 4
         self.morale = 4
         self.level = 5
+        self.xp = 0
         self.attacks = []
         self.attack_cap = 4
         self.defences = []
@@ -51,6 +52,9 @@ class Mon:
         def_size = min(self.tank // 3, 6) 
         def_type = random.choice((self.type1, self.type2))
         scale_type, mon_type, adj = random.choice(species.state_templates)
+        scale = mon_states.make_scale(scale_type, mon_type, adj, def_size)
+        self.states.append(scale)
+        self.can_battle = True
 
 if __name__ == "__main__":
     for i in range(20):

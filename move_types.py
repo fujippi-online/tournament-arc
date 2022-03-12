@@ -27,38 +27,37 @@ class MoveType:
 
 MoveType("Beam",ATK,
         nouns = ["ray", "beam", "blaster","line","stream","laser"],
-        verbs = ["shoot", "emit", "radiate", "blast"])
+        verbs = ["shoots", "blasts"])
 MoveType("Strike",ATK,
         nouns = ["strike", "punch", "kick", "bash", "impact", "karate", "MMA",
             "boxing", "kickboxing", "flurry"],
-        verbs = ["strike", "hit", "bash"])
+        verbs = ["strikes", "hits", "bashes"])
 MoveType("Grapple",ATK,
         nouns = ["throw", "slam", "flip", "grapple", "clinch", "reversal",
             "hold"],
-        verbs = ["throw", "slam", "flip", "grapple", "clinch", "reversal",
-            "hold"])
+        verbs = ["throws", "slams", "flips"])
 MoveType("Magic",ATK,
         nouns = ["curse", "spell", "bolt", "charm", "enchantment", "sorcery",
             "seal"],
-        verbs = ["curse", "cast", "summon", "enchant", "seal", "bewitch"])
+        verbs = ["assails"])
 MoveType("Sharp",ATK,
         nouns = ["cut", "cutter", "slash", "stab", "thrust", "blade", "point"],
-        verbs = ["slice", "dice", "cut", "pierce", "stab", "slash"])
+        verbs = ["slices", "dices", "cuts", "pierces", "slashes"])
 MoveType("Shield",DEF,
         nouns = ["shield", "bubble", "barrier", "buckler", "membrane", "wall",
             "boundary"],
-        verbs = ["protect", "shield", "deflect", "stop"])
+        verbs = ["protects against", "shields", "deflects", "stops"])
 MoveType("Dodge",DEF,
         nouns = ["sidestep", "dodge", "manouver", "backflip", "evasion",
             "acrobatics", "retreat", "duck"],
-        verbs = ["dodge", "evade", "retreat", "duck"])
+        verbs = ["dodges", "evades", "retreats from", "avoids"])
 MoveType("KO",FIN,
         nouns = ["KO", "finisher", "buster", "haymaker"],
         adjectives = ["knockout", "blackout", "haymaker", "final",
             "ultimate", "conclusive"],
-        verbs = ["conclude", "end", "finish", "KO"])
+        verbs = ["concludes", "ends", "finishes", "KOs"])
 MoveType("Blastoff",FIN,
         nouns = ["launcher", "rocket", "star", ""],
         adjectives = ["stratospheric", "atmospheric", "flying", "rocket",
             "blast-off"],
-        verbs = ["conclude", "end", "finish", "KO"])
+        verbs = ["concludes", "ends", "finishes", "KOs"])

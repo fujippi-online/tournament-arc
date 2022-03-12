@@ -255,8 +255,8 @@ if __name__ == '__main__':
         message.log.render(term)
         while True:
             game.update(term_interpreter.get_signal())
-            message.log.render(term)
             game.render()
+            message.log.render(term)
             if game.transition_with:
                 next_scene = game.transition_with
                 game.transition_with = None

@@ -17,6 +17,7 @@ class CurrentPlaythrough:
 
 def new_game():
     run = CurrentPlaythrough()
+    print("Generating types...")
     run.types = random.sample(mon_types.types, k=10)
     for t in run.types:
         affected_types = random.sample(run.types, k=6)
@@ -26,6 +27,7 @@ def new_game():
 
 current = new_game()
 def generate_mons():
+    print("Generating mons...")
     for i in range(150):
         current.mons.append(Species())
     for i in range(4):

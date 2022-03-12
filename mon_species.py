@@ -43,7 +43,7 @@ class Species:
             w2_amt = random.randint(1, len(w2))
             word1 = "".join(w1[:w1_amt])
             word2 = "".join(w2[-w2_amt:])
-            self.name = (word1+word2).capitalize()
+            self.name = (word1+word2).capitalize().replace(" ", "")
             clean = detect_slurs.is_clean(self.name)
         descriptor = "".join(w1)
         self.description = "The "+ random.choice(self.type1.adjectives)+\

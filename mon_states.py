@@ -2,14 +2,14 @@ class StateScale:
     def __init__(self, name, states, mon_type, scale_type):
         self.name = name
         self.states = tuple(states)
-        self.current_state = 1
+        self.current_state = len(states)
         self.mon_type = mon_type
     def state_descriptor(self):
         return self.states[-self.current_state]
     def do_damage(self, damage):
-        self.current_state += damage 
-        if current_state > len(self.states):
-            current_state = len(self.states)
+        self.current_state -= damage 
+        if self.current_state < 1:
+            self.current_state = 1
     def description(self):
         return (self.name.capitalize() + ": " +
             self.state_descriptor().capitalize())
@@ -39,7 +39,7 @@ ScaleType("toughness",
         ["wild", "rugged", "strong", "steadfast", "holding on", "exhausted"]
         )
 body = ScaleType("body",
-        ["fresh","fit", "strong", "healthy", "hurt", "vulnerable"]
+        ["fresh","fit", "strong", "healthy", "hurt", "knocked down"]
         )
 
 scale_types.remove(body) #not randomly generated bc you can only have one.

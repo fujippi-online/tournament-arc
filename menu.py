@@ -57,20 +57,24 @@ class MessageBox:
         """
         self.bg = bg
         self.x, self.y = 0, settings.VIEW_HEIGHT -2
-        self.w = settings.VIEW_WIDTH
+        self.w = settings.BAT_WIDTH
         self.h = 4
         self.safety = False
         wrapped_lines = textwrap.wrap(text, self.w-1)
-        n = self.h
+        n = self.h -1
         # using list comprehension
         pages = [wrapped_lines[i * n:(i + 1) * n]
                     for i in range((len(wrapped_lines) + n - 1) // n )]
         self.pages = ["\n".join(page) for page in pages]
         self.current_page = 0
     def update(self, key):
-        if not self.safety:
-            self.safety = True
-        else:
+        key_name = None
+        if key.name:
+            key_name = key.name
+        if not key_name:
+            key_name = tag_key(term, key)
+        if key_name == "KEY_ENTER" or key == "z" or key_name == "confirm"\
+                or key_name == "ability_z" or key == "a":
             self.current_page += 1
             if self.current_page >= len(self.pages):
                     return control.DONE

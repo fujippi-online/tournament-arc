@@ -29,12 +29,6 @@ def noun2_noun1(type2, type1, movetype):
     name = (random.choice(type1.nouns) + " " 
             + random.choice(type2.nouns))
     return name
-def movv_adj1_noun2(type1, type2, movetype):
-    name = (random.choice(movetype.verbs) + 
-            random.choice([" with ", " in ", " the "])
-            + random.choice(type1.adjectives) + " "
-            + random.choice(type2.nouns))
-    return name
 name_patterns = [
         noun2_nounmov,
         noun1_nounmov,
@@ -48,21 +42,34 @@ def movadj_noun1(type1, type2, movetype):
 fin_name_patterns = [
         movadj_noun1,
         ]
-def generate_atk(type1, type2):
+def generate_atk(type1, type2, power = 2):
     move_type = random.choice(move_types.atktypes) 
     name = None
     while name in names_in_use:
         pat = random.choice(name_patterns)
         name = pat(type1, type2, move_type)
-    return Move(name.capitalize(), type1, type2, move_type)
-def generate_def(type1, type2):
+    names_in_use.add(name)
+    atk = Move(name.capitalize(), type1, type2, move_type)
+    t1_strong = adventure.current.strong_vs[type1]
+    t2_strong = adventure.current.strong_vs[type2]
+    strong = list(random.sample(t1_strong+t2_strong,k=power))
+    atk.strong_vs = strong
+    t1_resist = adventure.current.resisted_by[type1]
+    t2_resist = adventure.current.resisted_by[type2]
+    resist = 6-power
+    if resist < 1:
+        resist = 1
+    atk.resisted_by = list(random.sample(t1_resist+t2_resist,k=resist))
+    return atk
+
+def generate_def(type1, type2, power = 1):
     move_type = random.choice(move_types.deftypes) 
     name = None
     while name in names_in_use:
         pat = random.choice(name_patterns)
         name = pat(type1, type2, move_type)
     return Move(name.capitalize(), type1, type2, move_type)
-def generate_fin(type1, type2):
+def generate_fin(type1, type2, power = 1):
     move_type = random.choice(move_types.fintypes) 
     name = None
     while name in names_in_use:
