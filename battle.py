@@ -43,7 +43,7 @@ damage_descriptors = [
         ("devastating",),
         ("fearsome",),
         ]
-class TeamBattle:
+class Battle:
     def __init__(self, opposing_team):
         self.opp = opposing_team
         self.current_opp = opposing_team[0]
@@ -54,7 +54,7 @@ class TeamBattle:
         self.opp_tag = None
     def show_message(self, lines):
         msgbox = menu.MessageBox(lines, bg = self)
-        control.takeover(msgbox)
+        control.takeover(msgbox, clear = False)
     def update(self, key):
         self.player_actions = []
         self.opp_actions = []
@@ -188,7 +188,7 @@ class TeamBattle:
                 self.current_mon = self.player_tag
                 self.player_tag = None
         if not self.current_opp.can_battle:
-            self.show_message(self.current_opp.name + "can no longer battle.")
+            self.show_message(self.current_opp.name + " can no longer battle.")
             options =  list([teammate for teammate in self.opp 
                 if teammate != self.current_opp and teammate.can_battle])
             if len(options) == 0:
@@ -233,6 +233,9 @@ class TeamBattle:
             ko_verb = random.choice(fin_move.move_type.verbs)
             self.show_message(actor.name + " " + ko_verb + " " + defender.name)
             defender.can_battle = False
+        else:
+            self.show_message("The attack is not enough to finish"+
+                    defender.name)
     def do_player_attack(self):
         if not self.current_mon.can_battle:
             return
@@ -347,12 +350,44 @@ class BattleLeader(character.Character):
         self.message = self.mon.name + ": " +\
                 self.team.members[0].mon.name + "! Let's rock!"
         self.team.members.append(self)
+        self.battled = False
     def interact(self, scene):
-        scene.show_message("Up for a battle?")
-        scene.show_message(self.message)
-        mons = list([teammate.mon for teammate in self.team.members])
-        takeover(TeamBattle(mons))
-        scene.show_message("Nice fighting!")
+        if not self.battled:
+            scene.show_message("Up for a battle?")
+            ques = menu.FloatingMenu(
+                    0, settings.VIEW_HEIGHT -4,
+                    [
+                        ("Yeah", True),
+                        ("Nah", False),
+                        ("Yeah, nah.", False)], 
+                    bg = scene)
+            up_for_it = takeover(ques)
+            if up_for_it:
+                scene.show_message(self.message)
+                mons = list([teammate.mon for teammate in self.team.members])
+                result = takeover(Battle(mons))
+                if result != "LOSS":
+                    scene.show_message("Nice fighting!")
+                    self.battled = True
+                else:
+                    handle_loss(scene)
+            else:
+                scene.show_message("Maybe another time.")
+        else:
+            scene.show_message("You're pretty strong!")
+
+def handle_loss(scene):
+    revive_scene, revive_position = adventure.current.revive_point
+    x,y = revive_position
+    for mon in adventure.current.party:
+        if mon.body.current_state == 1:
+            mon.body.current_state = 2
+    revive_scene.hero = scene.hero
+    revive_scene.hero.x = x
+    revive_scene.hero.y = y
+    adventure.current.scene = revive_scene
+    revive_scene.show_message("You don't remember much after the loss, "+
+            "but somehow you find yourself back in a familiar place.")
 
 class BattleMember(character.Character):
     def __init__(self, x, y, mon, team):
@@ -382,6 +417,6 @@ if __name__ == "__main__":
     opponents = []
     for i in range(6):
         opponents.append(mons.Mon(mon_species.Species()))
-    battle = TeamBattle(opponents)
+    battle = Battle(opponents)
     with term.fullscreen(), term.cbreak(), term.hidden_cursor(), term.keypad():
         takeover(battle)

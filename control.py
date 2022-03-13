@@ -10,12 +10,13 @@ class NoKey:
     code = None
     name = "NO_KEY"
 
-def takeover(game_process):
+def takeover(game_process, clear = True):
     if settings.ENGINE_MODE == "TERM":
-        return term_takeover(game_process)
+        return term_takeover(game_process, clear = clear)
 
-def term_takeover(game_process):
-    print((term.clear))
+def term_takeover(game_process, clear = True):
+    if clear:
+        print((term.clear))
     result = game_process.update(NoKey())
     if hasattr(game_process, "initial_render"):
         game_process.initial_render()

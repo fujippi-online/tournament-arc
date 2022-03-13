@@ -14,6 +14,8 @@ class CurrentPlaythrough:
         self.mons = []
         self.player_character = None
         self.current_map = None
+        self.revive_point = None #(revive_scene, (x, y))
+        self.scene = None
 
 def new_game():
     run = CurrentPlaythrough()

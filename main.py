@@ -47,7 +47,7 @@ class MapScene:
         self.locations_cached = False
     def show_message(self, lines):
         msgbox = menu.MessageBox(lines, bg = self)
-        takeover(msgbox)
+        takeover(msgbox, clear = False)
     def blocks_sight(self, x, y):
         for thing in self.things_at(x,y):
             if not thing.clear:
@@ -244,36 +244,40 @@ if __name__ == '__main__':
     import term_interpreter
     from title_screen import TitleScreen
     from undercoat import DynamicChunkMapGen, AreaGridChunkGen
+    import adventure
     game = map_generators.battle_city(MapScene(), 200, 200, 400)
+    adventure.current.scene = game
+    adventure.current.revive_point = (game, game.hero.position)
     with term.fullscreen(), term.cbreak(), term.hidden_cursor(), term.keypad():
         message.log.render(term)
         takeover(TitleScreen())
-        title_message = menu.MessageBox("\n".join([
+        title_message = [
             "Welcome to the world of MONS.",
             "Monsters are everywhere and you are one of them.",
             "Being a monster is great and fun.",
             "You are a special kind of monster.",
             "You are a COACH.",
-            "You can only become stronger by making the monsters",
+            "You can only become stronger by making the monsters "+
             "around you become strong.",
             "Many MONs love to be strong and to FIGHT.",
-            "Help the MONs that love to fight to become strong, and",
+            "Help the MONs that love to fight to become strong, and "+
             "succeed at the sport of competitive fighting.",
-            "But be careful - you will need to build up the SELF-CONFIDENCE",
+            "But be careful - you will need to build up the SELF-CONFIDENCE "+
             "of your comrades and earn their TRUST to succeed.",
             "Remember, each MON is different, and so are you.",
             "Good luck!",
-            ]), bg = game)
-        takeover(title_message)
+            ]
+        for msg in title_message:
+            game.show_message(msg)
         game.render()
         message.log.render(term)
         while True:
-            game.update(term_interpreter.get_signal())
-            game.render()
+            adventure.current.scene.update(term_interpreter.get_signal())
+            adventure.current.scene.render()
             message.log.render(term)
-            if game.transition_with:
-                next_scene = game.transition_with
-                game.transition_with = None
-                game = next_scene
-                game.render()
+            if adventure.current.scene.transition_with:
+                next_scene = aventure.current.scene.transition_with
+                adventure.current.scene.transition_with = None
+                adventure.current.scene = next_scene
+                adventure.current.scene.render()
 
