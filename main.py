@@ -43,6 +43,8 @@ class MapScene:
         self.to_remove = []
         self.ambiance = ambiance
         self.transition_with = None
+        self.location_cache = {}
+        self.locations_cached = False
     def show_message(self, lines):
         msgbox = menu.MessageBox(lines, bg = self)
         takeover(msgbox)
@@ -51,12 +53,23 @@ class MapScene:
             if not thing.clear:
                 return True
         return self.background[(x,y)].clear == False
+    def build_location_cache(self):
+        for thing in self.foreground:
+            try:
+                self.location_cache[thing.position].append(thing)
+            except KeyError:
+                self.location_cache[thing.position] = [thing]
+        self.locations_cached = True
+    def reset_location_cache(self):
+        self.location_cache = {}
+        self.locations_cached = False
     def things_at(self, x, y):
-        at_location = []
-        for thing in self.foreground + [self.hero]:
-            if thing.x == x and thing.y == y:
-                at_location.append(thing)
-        return at_location
+        if not self.locations_cached:
+            self.build_location_cache()
+        try:
+            return list(self.location_cache[(x,y)])
+        except KeyError:
+            return []
     def passable(self, x, y):
         if self.background[(x,y)].blocks == True:
             return False
@@ -137,6 +150,7 @@ class MapScene:
         if chosen_action == "Use":
             chosen_item.use(self)
     def update(self, signal):
+        self.reset_location_cache()
         self.turn_num += 1
         self.do_command(signal)
         for thing in self.foreground:

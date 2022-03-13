@@ -16,6 +16,7 @@ class Character:
     clear = True
     name = "Someone"
     is_hero = False
+    body_parts = True
     pronouns = pronouns.neutral
     def __init__(self, x, y):
         self.x = x
