@@ -15,7 +15,7 @@ syllable = nltk.tokenize.sonority_sequencing.SyllableTokenizer()
 detect_slurs = profanityfilter.ProfanityFilter()
 
 class Species:
-    def __init__(self, copy = None):
+    def __init__(self, types = None):
         self.name = None
         self.description = None
         self.type1 = None
@@ -25,10 +25,13 @@ class Species:
         self.basic_moves = []
         self.learned_moves = []
         self.state_templates = []
-        self.generate()
-    def generate(self):
-        self.type1 = random.choice(adventure.current.types)
-        self.type2 = random.choice(adventure.current.types)
+        self.generate(types = types)
+    def generate(self, types = None):
+        if types:
+            self.type1, self.type2 = types
+        else:
+            self.type1 = random.choice(adventure.current.types)
+            self.type2 = random.choice(adventure.current.types)
         self.family = random.choice(mon_bodies.body_types)
         self.variety = random.choice(self.family.varieties)
         clean = False

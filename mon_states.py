@@ -10,6 +10,10 @@ class StateScale:
         self.current_state -= damage 
         if self.current_state < 1:
             self.current_state = 1
+    def heal(self, damage):
+        self.current_state += damage 
+        if self.current_state > len(self.states):
+            self.current_state = len(self.states)
     def description(self):
         return (self.name.capitalize() + ": " +
             self.state_descriptor().capitalize())

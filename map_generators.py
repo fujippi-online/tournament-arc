@@ -13,6 +13,7 @@ import message
 import battle
 import map_util
 import adventure
+import cast
 from mons import Mon
 from battle import BattleTeam, BattleLeader, BattleMember
 
@@ -42,6 +43,61 @@ def is_doorway(background, position):
         door_spots.add(position)
     return passable and surrounded and sandwich and inverse_sandwich
 
+def battle_city(scene, width, height, num_boxes):
+    print("Generating city...")
+    foreground = []
+    background = roguemap.Map()
+    scene.foreground = foreground
+    scene.background = background
+    scene.boundary = (0, 0, width, height)
+    boxes_left = num_boxes
+    placed_boxes = []
+    background.fill_rect(roguemap.t_dirt, (0, 0, width, height))
+    map_util.scatter(scene, (1,1,width-2,height-2), roguemap.t_grass,
+            (width*height)//3)
+    map_util.scatter(scene, (1,1,width-2,height-2), roguemap.t_moss,
+            (width*height)//3)
+    background.draw_rect(roguemap.t_wall, (0, 0, width, height))
+    rint = random.randint
+    starting_box = (2,2,6,6)
+    background.fill_rect(roguemap.t_floor, starting_box)
+    background.draw_rect(roguemap.t_wall, starting_box)
+    map_util.place_item(scene, starting_box, cast.Healer(0,0))
+    background.tiles[6,8] = roguemap.t_floor
+    foreground.append(door.Door(6,8))
+    placed_boxes.append(starting_box)
+    while boxes_left > 0:
+        box = (rint(1, width),
+                rint(1, height),
+                rint(2,9),
+                rint(2,9)) 
+        if none_intersect(placed_boxes, box) and\
+                not geometry.point_in_rect(box, (5,5)):
+            placed_boxes.append(box)
+            boxes_left -= 1
+            background.fill_rect(roguemap.t_floor, box)
+            background.draw_rect(roguemap.t_wall, box)
+            x,y,w,h = box
+            if y+h < width:
+                background.tiles[x+(w//2),y+h] = roguemap.t_floor
+                foreground.append(door.Door(x+(w//2),y+h))
+            background.tiles[x+(w//2),y] = roguemap.t_floor
+            foreground.append(door.Door(x+(w//2),y))
+            if w>3 and h>3 and random.random() > 0.5:
+                flag = BattleTeam()
+                leader_mon = Mon(random.choice(adventure.current.mons))
+                team_mons = [Mon(random.choice(adventure.current.mons))
+                        for i in range(3)]
+                team = list([BattleMember(0,0,mon,flag) for mon in team_mons])
+                team.append(BattleLeader(x,y,leader_mon,flag))
+                for member in team:
+                    map_util.place_item(scene, box, member)
+    for i in range(1, width):
+        for j in range(1, height):
+            if is_doorway(background, (i, j)):
+                pass
+                #foreground.append(door.Door(i,j))
+    return scene
 class Room:
     def __init__(self, rect):
         self.rect = rect
@@ -76,7 +132,6 @@ class Passage:
                     line_start, line_end)
         scene.background.draw_line(roguemap.t_wall, p1_start, p2_start)
         scene.background.draw_line(roguemap.t_wall, p1_end, p2_end)
-
 
 def single_level_dungeon(scene, width, height, num_rooms):
     min_room_width = 7
@@ -129,86 +184,4 @@ def single_level_dungeon(scene, width, height, num_rooms):
     scene.camera.center_on(scene.hero)
     return scene
 
-def box_o_boxes(scene, width, height, num_boxes):
-    foreground = []
-    background = roguemap.Map()
-    boxes_left = num_boxes
-    placed_boxes = []
-    background.fill_rect(roguemap.t_floor, (0, 0, width, height))
-    background.draw_rect(roguemap.t_wall, (0, 0, width, height))
-    rint = random.randint
-    while boxes_left > 0:
-        box = (rint(1, width),
-                rint(1, height),
-                rint(2,9),
-                rint(2,9)) 
-        if none_intersect(placed_boxes, box) and\
-                not geometry.point_in_rect(box, (5,5)):
-            placed_boxes.append(box)
-            boxes_left -= 1
-            background.draw_rect(roguemap.t_wall, box)
-    p = rint(1, height), rint(1,width)
-    blood_path = path(background,(5,5), p)
-    tries = 1
-    while not blood_path:
-        p = rint(10, height), rint(10,width)
-        blood_path = path(background,(5,5), p)
-        tries += 1
-        print(tries)
-    for point in blood_path:
-        background.tiles[point] = roguemap.t_blood
-    for i in range(1, width):
-        for j in range(1, height):
-            if is_doorway(background, (i, j)):
-                foreground.append(door.Door(i,j))
-    scene.foreground = foreground
-    scene.background = background
-    return scene
 
-
-def battle_city(scene, width, height, num_boxes):
-    print("Generating city...")
-    foreground = []
-    background = roguemap.Map()
-    scene.foreground = foreground
-    scene.background = background
-    boxes_left = num_boxes
-    placed_boxes = []
-    background.fill_rect(roguemap.t_dirt, (0, 0, width, height))
-    map_util.scatter(scene, (1,1,width-2,height-2), roguemap.t_grass,
-            (width*height)//3)
-    map_util.scatter(scene, (1,1,width-2,height-2), roguemap.t_moss,
-            (width*height)//3)
-    background.draw_rect(roguemap.t_wall, (0, 0, width, height))
-    rint = random.randint
-    while boxes_left > 0:
-        box = (rint(1, width),
-                rint(1, height),
-                rint(2,9),
-                rint(2,9)) 
-        if none_intersect(placed_boxes, box) and\
-                not geometry.point_in_rect(box, (5,5)):
-            placed_boxes.append(box)
-            boxes_left -= 1
-            background.fill_rect(roguemap.t_floor, box)
-            background.draw_rect(roguemap.t_wall, box)
-            x,y,w,h = box
-            background.tiles[x+(w//2),y+h] = roguemap.t_floor
-            foreground.append(door.Door(x+(w//2),y+h))
-            background.tiles[x+(w//2),y] = roguemap.t_floor
-            foreground.append(door.Door(x+(w//2),y))
-            if w>5 and h>4 and random.random() > 0.5:
-                flag = BattleTeam()
-                leader_mon = Mon(random.choice(adventure.current.mons))
-                team_mons = [Mon(random.choice(adventure.current.mons))
-                        for i in range(3)]
-                team = list([BattleMember(0,0,mon,flag) for mon in team_mons])
-                team.append(BattleLeader(x,y,leader_mon,flag))
-                for member in team:
-                    map_util.place_item(scene, box, member)
-    for i in range(1, width):
-        for j in range(1, height):
-            if is_doorway(background, (i, j)):
-                pass
-                #foreground.append(door.Door(i,j))
-    return scene

@@ -21,7 +21,7 @@ def new_game():
     run = CurrentPlaythrough()
     print("Generating types...")
     run.types = random.sample(mon_types.types, k=10)
-    for t in run.types:
+    for t in run.types + [mon_types.coach]:
         affected_types = random.sample(run.types, k=6)
         run.strong_vs[t] = affected_types[:3]
         run.resisted_by[t] = affected_types[3:]

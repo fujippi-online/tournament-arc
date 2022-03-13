@@ -241,6 +241,9 @@ if __name__ == '__main__':
     import core
     import props
     import game_time
+    import mon_types
+    import mon_species
+    import mons
     import term_interpreter
     from title_screen import TitleScreen
     from undercoat import DynamicChunkMapGen, AreaGridChunkGen
@@ -248,6 +251,7 @@ if __name__ == '__main__':
     game = map_generators.battle_city(MapScene(), 200, 200, 400)
     adventure.current.scene = game
     adventure.current.revive_point = (game, game.hero.position)
+    print(term.width, term.height)
     with term.fullscreen(), term.cbreak(), term.hidden_cursor(), term.keypad():
         message.log.render(term)
         takeover(TitleScreen())
@@ -269,6 +273,21 @@ if __name__ == '__main__':
             ]
         for msg in title_message:
             game.show_message(msg)
+        coach_species = []
+        for mon_type in adventure.current.types:
+            coach_species.append(
+                    mon_species.Species(types=(mon_types.coach,
+                        random.choice(adventure.current.types))))
+        pc_menu = menu.FloatingMenu(0,0,list(
+            [(spe.name + " - " + spe.description, spe) for spe in
+                coach_species]), bg = game, title = "Pick your character.")
+        pc_species = takeover(pc_menu)
+        partners = random.sample(adventure.current.mons, k=10)
+        partner_menu = menu.FloatingMenu(0,0,list(
+            [(spe.name + " - " + spe.description, spe) for spe in
+                partners]), bg = game, title = "Pick your partner.")
+        partner_species = takeover(partner_menu)
+        adventure.current.party = [mons.Mon(partner_species), mons.Mon(pc_species)]
         game.render()
         message.log.render(term)
         while True:
