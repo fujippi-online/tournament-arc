@@ -12,10 +12,13 @@ class CurrentPlaythrough:
         self.resisted_by = {}
         self.trophies = []
         self.mons = []
+        self.map_party = []
         self.player_character = None
         self.current_map = None
         self.revive_point = None #(revive_scene, (x, y))
         self.scene = None
+
+party_limit = 5
 
 def new_game():
     run = CurrentPlaythrough()

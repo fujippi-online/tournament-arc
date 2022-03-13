@@ -60,6 +60,11 @@ class MapScene:
             except KeyError:
                 self.location_cache[thing.position] = [thing]
         self.locations_cached = True
+    def recache_position(self, thing):
+            try:
+                self.location_cache[thing.position].append(thing)
+            except KeyError:
+                self.location_cache[thing.position] = [thing]
     def reset_location_cache(self):
         self.location_cache = {}
         self.locations_cached = False
@@ -245,6 +250,7 @@ if __name__ == '__main__':
     import mon_species
     import mons
     import term_interpreter
+    import cast
     from title_screen import TitleScreen
     from undercoat import DynamicChunkMapGen, AreaGridChunkGen
     import adventure
@@ -288,6 +294,9 @@ if __name__ == '__main__':
                 partners]), bg = game, title = "Pick your partner.")
         partner_species = takeover(partner_menu)
         adventure.current.party = [mons.Mon(partner_species), mons.Mon(pc_species)]
+        party_member = cast.PartyMember(6,6,adventure.current.party[0])
+        adventure.current.map_party.append(party_member)
+        game.foreground.append(party_member)
         game.render()
         message.log.render(term)
         while True:

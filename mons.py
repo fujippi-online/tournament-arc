@@ -55,6 +55,8 @@ class Mon:
         scale = mon_states.make_scale(scale_type, mon_type, adj, def_size)
         self.states.append(scale)
         self.can_battle = True
+    def revive(self):
+        self.can_battle = True
 
 if __name__ == "__main__":
     for i in range(20):

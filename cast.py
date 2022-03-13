@@ -3,6 +3,7 @@ import menu
 import settings
 import control
 import adventure
+import geometry
 
 from character import Character
 from game_time import calendar
@@ -25,3 +26,31 @@ class Healer(Character):
                 for state in mon.states:
                     state.heal(1)
             scene.render()
+
+class InfoGuy(Character):
+    color = "blue"
+    symbol = "!"
+    def __init__(self, x, y, messages):
+        super().__init__(x,y)
+        self.messages = message
+    def interact(self, scene):
+        for message in self.messages:
+            scene.show_message(message)
+
+class PartyMember(Character):
+    color = "orange"
+    symbol = "@"
+    blocks = True
+    def __init__(self, x, y, mon):
+        super().__init__(x,y)
+        self.mon = mon
+        self.name = mon.name
+    def update(self, scene):
+        if geometry.distance(self.position, scene.hero.position) > 4:
+            self.move_towards(scene, scene.hero.position)
+        elif geometry.distance(self.position, scene.hero.position) < 2:
+            self.move_away_from(scene, scene.hero.position)
+        elif geometry.distance(self.position, scene.hero.position) > 30:
+            map_util.reposition_item(scene, scene.camera.rect, self)
+            
+

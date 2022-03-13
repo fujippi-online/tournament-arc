@@ -8,11 +8,10 @@ distribution of in-game resources.
 
 import random
 
-class Rarity:
-    common = 10
-    uncommon = 5
-    rare = 1
-    super_rare = 0.1
+common = 10
+uncommon = 5
+rare = 1
+super_rare = 0.1
 
 class DropRegister:
     """
@@ -38,28 +37,23 @@ class DropRegister:
                         self.total_weight -= weight
                 return generator()
 
-outdoor_items = DropRegister()
-dungeon_items = DropRegister()
-domestic_items = DropRegister()
-treasure_chests = DropRegister()
+loot = DropRegister()
+keys = DropRegister()
 
-friendly_conversations = DropRegister()
-monster_conversations = DropRegister()
-
-friendly_npcs = DropRegister()
-outdoor_monsters = DropRegister()
+chatty_npcs = DropRegister()
+fighty_npcs = DropRegister()
 
 def test_drops():
     test_stuff = DropRegister()
     test_stuff.add(lambda: "a")
-    assert test_stuff.total_weight == Rarity.common
+    assert test_stuff.total_weight == common
     test_stuff.add(lambda: "b")
-    assert test_stuff.total_weight == Rarity.common*2
+    assert test_stuff.total_weight == common*2
     test_stuff.add(lambda: "c", limit = 1) 
     results = [test_stuff.select_drop() for i in range(100)]
     for result in results:
         assert result in ["a", "b", "c"]
     assert results.count("c") <= 1
     if results.count("c") == 1:
-        assert test_stuff.total_weight == Rarity.common*2
+        assert test_stuff.total_weight == common*2
 

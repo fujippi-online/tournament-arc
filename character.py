@@ -31,6 +31,7 @@ class Character:
         step = path[0]
         if path and scene.passable(*step):
             self.x, self.y = step
+            scene.recache_position(self)
     def move_away_from(self, scene, point):
         gaps = scene.background.adjacent(self.position) 
         gaps.append(self.position)
@@ -38,6 +39,7 @@ class Character:
         step = max(steps, key = lambda p: distance(p, point))
         if step:
             self.x, self.y = step
+            scene.recache_position(self)
     def hero_adjacent(self, scene):
         directions = product([-1, 0, 1], [-1, 0, 1]) 
         adjacent_spots = [(x+self.x, y+self.y) for x, y in directions]

@@ -4,6 +4,7 @@ import adventure
 import settings
 import menu
 import character
+import cast
 from move_types import ATK, DEF, FIN
 from control import takeover
 from core import term
@@ -129,9 +130,9 @@ class Battle:
                         mon.morale -= 1
                     return "LOSS"
         #OPP decision making (lol)
-        tag_options =  list([(teammate.name, teammate) 
-            for teammate in adventure.current.party 
-            if teammate != self.current_mon and teammate.can_battle])
+        tag_options =  list([mon 
+            for mon in self.opp
+            if mon != self.current_opp and mon.can_battle])
         if random.random() < 0.05 and len(tag_options) > 0:
             self.opp_actions.append(random.choice(self.current_opp.attacks))
             self.opp_tag = random.choice(tag_options)
@@ -380,6 +381,7 @@ def handle_loss(scene):
     revive_scene, revive_position = adventure.current.revive_point
     x,y = revive_position
     for mon in adventure.current.party:
+        mon.revive()
         if mon.body.current_state == 1:
             mon.body.current_state = 2
     revive_scene.hero = scene.hero
@@ -409,6 +411,58 @@ class BattleMember(character.Character):
         self.team.members.append(self)
     def interact(self, scene):
         scene.show_message(self.message)
+
+class Wanderer(character.Character):
+    def __init__(self, x, y, mon):
+        super().__init__(x, y)
+        self.mon = mon
+        self.name = self.mon.name
+        self.symbol = self.name[0]
+        self.color = "orange"
+        self.message = self.mon.name + ": " + "Let's see what you've got!"
+        self.battled = False
+    def interact(self, scene):
+        if not self.battled:
+            scene.show_message("Up for a battle?")
+            ques = menu.FloatingMenu(
+                    0, settings.VIEW_HEIGHT -4,
+                    [
+                        ("Yeah", True),
+                        ("Nah", False),
+                        ("Yeah, nah.", False)], 
+                    bg = scene)
+            up_for_it = takeover(ques)
+            if up_for_it:
+                scene.show_message(self.message)
+                result = takeover(Battle([self.mon]))
+                if result != "LOSS":
+                    scene.show_message("Nice fighting!")
+                    self.battled = True
+                    if len(adventure.current.party) < adventure.party_limit:
+                        scene.show_message("How about joining forces?")
+                        ques = menu.FloatingMenu(
+                                0, settings.VIEW_HEIGHT -4,
+                                [
+                                    ("Definitely.", True),
+                                    ("Hell yeah.", True),
+                                    ("I dunno...", False),
+                                    ("I'll think about it.", False)], 
+                                bg = scene)
+                        up_for_it = takeover(ques)
+                        if up_for_it:
+                            scene.show_message("Right on!")
+                            self.mon.body.heal(2)
+                            scene.foreground.remove(self)
+                            m = cast.PartyMember(self.x, self.y, self.mon)
+                            scene.foreground.append(m)
+                            adventure.current.map_party.append(m)
+                            adventure.current.party.append(self.mon)
+                else:
+                    handle_loss(scene)
+            else:
+                scene.show_message("Maybe another time.")
+        else:
+            pass
 
 if __name__ == "__main__":
     import mon_species

@@ -15,7 +15,7 @@ import map_util
 import adventure
 import cast
 from mons import Mon
-from battle import BattleTeam, BattleLeader, BattleMember
+from battle import BattleTeam, BattleLeader, BattleMember, Wanderer
 
 def none_intersect(rects, r1):
     for r2 in rects:
@@ -87,16 +87,19 @@ def battle_city(scene, width, height, num_boxes):
                 flag = BattleTeam()
                 leader_mon = Mon(random.choice(adventure.current.mons))
                 team_mons = [Mon(random.choice(adventure.current.mons))
-                        for i in range(3)]
+                        for i in range(random.randint(1,3))]
                 team = list([BattleMember(0,0,mon,flag) for mon in team_mons])
                 team.append(BattleLeader(x,y,leader_mon,flag))
                 for member in team:
                     map_util.place_item(scene, box, member)
+            elif w>3 and h>2:
+                wandering_mon = Mon(random.choice(adventure.current.mons))
+                wanderer = Wanderer(0,0,wandering_mon)
+                map_util.place_item(scene, box, wanderer)
     for i in range(1, width):
         for j in range(1, height):
             if is_doorway(background, (i, j)):
-                pass
-                #foreground.append(door.Door(i,j))
+                foreground.append(door.Door(i,j))
     return scene
 class Room:
     def __init__(self, rect):
