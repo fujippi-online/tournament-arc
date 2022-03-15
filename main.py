@@ -24,8 +24,6 @@ class Hero(Character):
     inventory = []
     is_hero = True
     vision_range = 8
-    def say(self, spoken_message):
-        message.log.post(self.name+": "+spoken_message)
 
 
 DEFAULT_AMBIANCE = ["Things are going well."
@@ -191,9 +189,11 @@ class MapScene:
                         thing.hero_seen = hero.position
                     with term.location(sx, sy):
                         if hasattr(thing, "bg_color"):
-                            color = getattr(term, thing.color+"_on_"+thing.bg_color)
+                            color = getattr(term,
+                                    f"{thing.color}_on_{thing.bg_color}")
                         else:
-                            color = getattr(term, thing.color+"_on_bright_black")
+                            color = getattr(term, 
+                                    f"{thing.color}_on_bright_black")
                         if hasattr(thing, 'body_parts'):
                             print((color(term.on_white(thing.symbol))))
                         else:
@@ -261,6 +261,8 @@ if __name__ == '__main__':
     with term.fullscreen(), term.cbreak(), term.hidden_cursor(), term.keypad():
         message.log.render(term)
         takeover(TitleScreen())
+        name_input = menu.InputBox("What's your name?", bg = game)
+        pc_name = takeover(name_input)
         title_message = [
             "Welcome to the world of MONS.",
             "Monsters are everywhere and you are one of them.",
@@ -285,15 +287,18 @@ if __name__ == '__main__':
                     mon_species.Species(types=(mon_types.coach,
                         random.choice(adventure.current.types))))
         pc_menu = menu.FloatingMenu(0,0,list(
-            [(spe.name + " - " + spe.description, spe) for spe in
+            [(f"{spe.name} {spe.description}", spe) for spe in
                 coach_species]), bg = game, title = "Pick your character.")
         pc_species = takeover(pc_menu)
         partners = random.sample(adventure.current.mons, k=10)
         partner_menu = menu.FloatingMenu(0,0,list(
-            [(spe.name + " - " + spe.description, spe) for spe in
+            [(f"{spe.name} {spe.description}", spe) for spe in
                 partners]), bg = game, title = "Pick your partner.")
         partner_species = takeover(partner_menu)
-        adventure.current.party = [mons.Mon(partner_species), mons.Mon(pc_species)]
+        pc = mons.Mon(pc_species)
+        pc.name = f"{pc.species.name} {pc_name}"
+        partner = mons.Mon(partner_species)
+        adventure.current.party = [partner, pc]
         party_member = cast.PartyMember(6,6,adventure.current.party[0])
         adventure.current.map_party.append(party_member)
         game.foreground.append(party_member)
@@ -308,4 +313,3 @@ if __name__ == '__main__':
                 adventure.current.scene.transition_with = None
                 adventure.current.scene = next_scene
                 adventure.current.scene.render()
-

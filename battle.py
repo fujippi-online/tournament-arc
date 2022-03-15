@@ -122,9 +122,6 @@ class Battle:
                         options, bg = self)
                 move = takeover(move_menu)
                 if move != "x":
-                    self.player_tag = takeover(move_menu)
-                    actions_picked += 1
-                    action_menu.remove(("Tag-out", "tag"))
                     self.show_message("You forfeit the battle!")
                     for mon in adventure.current.party:
                         mon.morale -= 1
@@ -162,18 +159,18 @@ class Battle:
                     self.current_opp, self.opp_actions)
         # TAG phase
         if self.player_tag:
-            self.show_message(self.current_mon.name + " taggged out for " +
-                    self.player_tag.name)
+            self.show_message(f"{self.current_mon.name} taggged out for "
+                    f"{self.player_tag.name}")
             self.current_mon = self.player_tag
             self.player_tag = None
         if self.opp_tag:
-            self.show_message(self.current_opp.name + " taggged out for " +
-                    self.opp_tag.name)
+            self.show_message(f"{self.current_opp.name} taggged out for "
+                    f"{self.opp_tag.name}")
             self.current_mon = self.player_tag
             self.player_tag = None
         # KO swap and victory/loss phase
         if not self.current_mon.can_battle:
-            self.show_message(self.current_mon.name + " can no longer battle.")
+            self.show_message(f"{self.current_mon.name} can no longer battle.")
             options =  list([(teammate.name, teammate) 
                 for teammate in adventure.current.party 
                 if teammate != self.current_mon and teammate.can_battle])
@@ -184,12 +181,12 @@ class Battle:
                 move_menu = menu.FloatingMenu(0, settings.VIEW_HEIGHT-1, 
                         options, bg = self)
                 self.player_tag = takeover(move_menu)
-                self.show_message(self.current_mon.name + " taggged out for " +
-                        self.player_tag.name)
+                self.show_message(f"{self.current_mon.name} taggged out for "
+                        f"{self.player_tag.name}")
                 self.current_mon = self.player_tag
                 self.player_tag = None
         if not self.current_opp.can_battle:
-            self.show_message(self.current_opp.name + " can no longer battle.")
+            self.show_message(f"{self.current_opp.name} can no longer battle.")
             options =  list([teammate for teammate in self.opp 
                 if teammate != self.current_opp and teammate.can_battle])
             if len(options) == 0:
@@ -197,7 +194,7 @@ class Battle:
                 return "WIN"
             else:
                 self.current_opp = random.choice(options)
-                self.show_message(self.current_opp.name + " stood up to fight.")
+                self.show_message(f"{self.current_opp.name} stood up to fight.")
     def do_fin(self, actor, actions, defender, defns):
         if not actor.can_battle:
             return
@@ -214,32 +211,30 @@ class Battle:
                 fin_move = action
         if fin_move == None:
             return
-        self.show_message(actor.name + " used " + fin_move.name)
+        self.show_message(f"{actor.name} used {fin_move.name}")
         hit_state = None
         for state in defender.states:
             if state.mon_type in fin_move.strong_vs:
-                self.show_message(fin_move.name + " pierces " +
-                        defender.name + "'s" + state.name + "!")
+                self.show_message(f"{fin_move.name} pierces " 
+                    f"{defender.name}'s {state.name}!")
             elif state.current_state != 1:
                 hit_state = state
                 break
         if hit_state == None:
             hit_state = defender.body
         else:
-            self.show_message(defender.name + "'s " + hit_state.name + 
+            self.show_message(f"{defender.name}'s {hit_state.name}"
                     " protects it.")
             return
         damage = calc_damage(defender, fin_move, def_move, hit_state)
         if damage > hit_state.current_state:
             ko_verb = random.choice(fin_move.move_type.verbs)
-            self.show_message(actor.name + " " + ko_verb + " " + defender.name)
+            self.show_message(f"{actor.name} {ko_verb} {defender.name}")
             defender.can_battle = False
         else:
             self.show_message("The attack is not enough to finish"+
                     defender.name)
     def do_player_attack(self):
-        if not self.current_mon.can_battle:
-            return
         opp_def = None
         for action in self.opp_actions:
             if action.move_type.action == DEF:
@@ -250,33 +245,36 @@ class Battle:
                 player_atk = action
         if player_atk == None:
             return
+        self.do_attack(self.current_mon, player_atk, self.current_opp, opp_def)
+    def do_attack(self, attacker, attack, defender, defence):
+        if not attacker.can_battle:
+            return
         hit_state = None
-        for state in self.current_opp.states:
+        for state in defender.states:
             if state.current_state != 1:
                 hit_state = state
                 break
         if hit_state == None:
-            hit_state = self.current_opp.body
-        damage = calc_damage(self.current_opp, player_atk, opp_def, hit_state)
-        self.show_message(self.current_mon.name + " " +
-                random.choice(player_atk.move_type.verbs) + " " +
-                self.current_opp.name + " with " + player_atk.name+".")
+            hit_state = defender.body
+        damage = calc_damage(defender, attack, defence, hit_state)
+        self.show_message(f"{attacker.name} " 
+                f"{random.choice(attack.move_type.verbs)} "
+                f"{defender.name} with {attack.name}.")
         if damage > 0:
-            if opp_def:
-                self.show_message(self.current_opp.name + 
-                        " tried to defend with " + opp_def.name)
-            self.show_message("It's a " +
-                    random.choice(damage_descriptors[damage]) + " hit!")
+            if defence:
+                self.show_message(f"{defender.name}" 
+                        f" tried to defend with {defence.name}.")
+            self.show_message("It's a "
+                    f"{random.choice(damage_descriptors[damage])} hit!")
             hit_state.do_damage(damage)
-            self.show_message(self.current_opp.name+"'s " + hit_state.name + 
-                    " is " + hit_state.state_descriptor() + ".")
-        elif opp_def == None:
-            self.show_message(hit_state.name + 
+            self.show_message(f"{defender.name}'s {hit_state.name} " 
+                    f"is {hit_state.state_descriptor()}.")
+        elif defence == None:
+            self.show_message(f"{defender.name}'s {hit_state.name}"
                     " resisted the attack")
         else:
-            self.show_message(self.current_opp.name + "'s " 
-                    + opp_def.name + " "
-                    + random.choice(opp_def.move_type.verbs) +" the attack.") 
+            self.show_message(f"{defender.name}'s {defence.name} "
+                    f"{random.choice(defence.move_type.verbs)} the attack.") 
     def do_opp_attack(self):
         if not self.current_opp.can_battle:
             return
@@ -290,34 +288,7 @@ class Battle:
                 opp_atk = action
         if opp_atk == None:
             return
-        hit_state = None
-        for state in self.current_mon.states:
-            if state.current_state != 1:
-                hit_state = state
-                break
-        if hit_state == None:
-            hit_state = self.current_mon.body
-        damage = calc_damage(self.current_mon, opp_atk, player_def, hit_state)
-        self.show_message(self.current_opp.name + " " +
-                random.choice(opp_atk.move_type.verbs) + " " +
-                self.current_mon.name + " with " + opp_atk.name+".")
-        if damage > 0:
-            if player_def:
-                self.show_message(self.current_mon.name + 
-                        " tried to defend with " + player_def.name)
-            self.show_message("It's a " +
-                    random.choice(damage_descriptors[damage]) + " hit!")
-            hit_state.do_damage(damage)
-            self.show_message(self.current_mon.name+"'s " + hit_state.name + 
-                    " is " + hit_state.state_descriptor() + ".")
-        elif player_def == None:
-            self.show_message(hit_state.name + 
-                    " resisted the attack")
-        else:
-            self.show_message(self.current_mon.name + "'s " 
-                    + player_def.name + " " 
-                    + random.choice(player_def.move_type.verbs) +
-                    " the attack.") 
+        self.do_attack(self.current_opp, opp_atk, self.current_mon, player_def)
     def render(self):
         player_info = [
                 self.current_mon.name,
@@ -348,8 +319,8 @@ class BattleLeader(character.Character):
         self.symbol = self.name[0]
         self.color = "red"
         self.team = team
-        self.message = self.mon.name + ": " +\
-                self.team.members[0].mon.name + "! Let's rock!"
+        self.message = (f"{self.mon.name} :" 
+                f"{self.team.members[0].mon.name}! Let's rock!")
         self.team.members.append(self)
         self.battled = False
     def interact(self, scene):
@@ -388,7 +359,7 @@ def handle_loss(scene):
     revive_scene.hero.x = x
     revive_scene.hero.y = y
     adventure.current.scene = revive_scene
-    revive_scene.show_message("You don't remember much after the loss, "+
+    revive_scene.show_message("You don't remember much after the loss, "
             "but somehow you find yourself back in a familiar place.")
 
 class BattleMember(character.Character):
@@ -406,8 +377,8 @@ class BattleMember(character.Character):
                 "My teammates respect me for my "]
         move = random.choice(self.mon.defences+self.mon.attacks+
                 self.mon.finishers)
-        self.message = self.mon.name + ": " +\
-                random.choice(openings)+move.name+"!"
+        self.message = (f"{self.mon.name} : {random.choice(openings)}"
+            f"{move.name}!")
         self.team.members.append(self)
     def interact(self, scene):
         scene.show_message(self.message)
@@ -419,7 +390,7 @@ class Wanderer(character.Character):
         self.name = self.mon.name
         self.symbol = self.name[0]
         self.color = "orange"
-        self.message = self.mon.name + ": " + "Let's see what you've got!"
+        self.message = f"{self.mon.name}: Let's see what you've got!"
         self.battled = False
     def interact(self, scene):
         if not self.battled:

@@ -8,6 +8,7 @@ import core
 import textwrap
 import geometry
 import settings
+import string
 from settings import VIEW_WIDTH, VIEW_HEIGHT
 from core import DIRECTIONS, term
 
@@ -85,6 +86,42 @@ class MessageBox:
         if self.current_page < len(self.pages):
             draw_textbox((self.x, self.y, self.w, self.h+2),
                     [self.pages[self.current_page]])
+
+class InputBox:
+    def __init__(self, prompt, bg = None):
+        """
+        Single line input for text.
+        Enter key concludes.
+        """
+        self.bg = bg
+        self.x, self.y = 0, settings.VIEW_HEIGHT -2
+        self.text = ""
+        self.prompt = prompt
+        self.w = settings.BAT_WIDTH
+        self.h = 1
+    def update(self, ignore):
+        self.bg.render()
+        self.render()
+        while True:
+            key = core.term.inkey()
+            key_name = None
+            if key.name:
+                key_name = key.name
+            if not key_name:
+                key_name = tag_key(term, key)
+            if key_name == "KEY_ENTER":
+                return self.text
+            elif key_name == "KEY_BACKSPACE":
+                self.text = self.text[:-2]
+            elif key in string.printable:
+                self.text += key
+            self.render()
+    def initial_render(self):
+        if self.bg:
+            self.bg.render()
+    def render(self):
+        draw_textbox((self.x, self.y, self.w, self.h+2),
+                [f"{self.prompt} {self.text}"])
 
 class FloatingMenu:
     def __init__(self, x, y, menu_entries, title = None, bg = None):
