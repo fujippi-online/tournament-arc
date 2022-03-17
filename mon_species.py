@@ -37,20 +37,25 @@ class Species:
         clean = False
         while not clean:
             words = self.type1.nouns + self.type2.nouns + [self.variety]
-            w1 = syllable.tokenize(random.choice(words))
+            w1 = syllable.tokenize(random.choice(words).replace(" ",""))
             words += self.family.limbs
-            w2 = syllable.tokenize(random.choice(words))
+            w2 = syllable.tokenize(random.choice(words).replace(" ",""))
             while w1[0] == w2[0]:
                 w2 = syllable.tokenize(random.choice(words))
-            w1_amt = random.randint(1, len(w1))
-            w2_amt = random.randint(1, len(w2))
+            max_w1 = min(len(w1), 2)
+            max_w2 = min(len(w2), 2)
+            w1_amt = random.randint(1, max_w1)
+            w2_amt = random.randint(1, max_w2)
             word1 = "".join(w1[:w1_amt])
             word2 = "".join(w2[-w2_amt:])
             self.name = (word1+word2).capitalize().replace(" ", "")
             clean = detect_slurs.is_clean(self.name)
-        descriptor = "".join(w1)
-        self.description = "The "+ random.choice(self.type1.adjectives)+\
-                " " + descriptor + " " +self.variety
+        if "".join(w1) != self.variety:
+            descriptor = "".join(w1)
+        else:
+            descriptor = random.choice(self.type1.nouns + self.type2.nouns)
+        adj = random.choice(self.type1.adjectives + self.type2.adjectives)
+        self.description = (f"The {adj} {descriptor} {self.variety}")
         for i in range(12):
             r = random.random()
             if r < 0.4:

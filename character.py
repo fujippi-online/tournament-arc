@@ -28,8 +28,10 @@ class Character:
         return self.x, self.y
     def move_towards(self, scene, point, mask=[]):
         path = scene.path(self.position, point, mask = mask)
+        if not path:
+            return
         step = path[0]
-        if path and scene.passable(*step):
+        if scene.passable(*step):
             self.x, self.y = step
             scene.recache_position(self)
     def move_away_from(self, scene, point):

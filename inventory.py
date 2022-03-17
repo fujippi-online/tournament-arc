@@ -24,7 +24,7 @@ class Item:
     def position(self):
         return self.x, self.y
     def inspect(self, scene):
-        message.log.post("It's nothing.")
+        message.log.post(f"It's a {self.name}")
         return control.DONE
     def drop(self, scene):
         scene.hero.inventory.remove(self)

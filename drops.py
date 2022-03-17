@@ -20,10 +20,10 @@ class DropRegister:
     def __init__(self):
         self.drops = []
         self.total_weight = 0
-    def add(self, generator, weight = Rarity.common, limit = None):
-        self.drops.append((generator, weight, limit))
-        self.total_weight += weight
-    def select_drop(self):
+    def add(self, generator, rarity, limit = None):
+        self.drops.append((generator, rarity, limit))
+        self.total_weight += rarity
+    def gen_drop(self):
         index = random.random()*self.total_weight
         current_weight = 0
         for generator, weight, limit in self.drops:
@@ -35,13 +35,13 @@ class DropRegister:
                         self.drops.append((generator, weight, limit-1))
                     else:
                         self.total_weight -= weight
-                return generator()
+                if callable(generator):
+                    return generator()
+                else:
+                    return generator
 
 loot = DropRegister()
 keys = DropRegister()
-
-chatty_npcs = DropRegister()
-fighty_npcs = DropRegister()
 
 def test_drops():
     test_stuff = DropRegister()
@@ -50,7 +50,7 @@ def test_drops():
     test_stuff.add(lambda: "b")
     assert test_stuff.total_weight == common*2
     test_stuff.add(lambda: "c", limit = 1) 
-    results = [test_stuff.select_drop() for i in range(100)]
+    results = [test_stuff.gen_drop() for i in range(100)]
     for result in results:
         assert result in ["a", "b", "c"]
     assert results.count("c") <= 1

@@ -293,7 +293,7 @@ class Battle:
         player_info = [
                 self.current_mon.name,
                 self.current_mon.species.description,
-                self.current_mon.type1.name + " " + self.current_mon.type2.name,
+                f"{self.current_mon.type1.name}  {self.current_mon.type2.name}",
                 "",
                 self.current_mon.body.description()
         ] + list([state.description() for state in self.current_mon.states])
@@ -301,7 +301,7 @@ class Battle:
         opp_info = [
                 self.current_opp.name,
                 self.current_opp.species.description,
-                self.current_opp.type1.name + " " + self.current_opp.type2.name,
+                f"{self.current_opp.type1.name} {self.current_opp.type2.name}",
                 "",
                 self.current_opp.body.description()
         ] + list([state.description() for state in self.current_opp.states])

@@ -9,7 +9,7 @@ def random_point_in_chunk(chunk):
 
 def free_point_in_chunk(scene, chunk):
     px, py = random_point_in_chunk(chunk)
-    while scene.background[px, py].blocks:
+    while scene.background[px, py].blocks or len(scene.things_at(px, py)) > 0:
         px, py = random_point_in_chunk(chunk)
     return px, py
 

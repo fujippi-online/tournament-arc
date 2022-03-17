@@ -12,6 +12,13 @@ def corners(rect):
     x, y, w, h = rect
     return [(x,y), (x+w, y), (x+w, y+h), (x, y+h)]
 
+def side_middles(rect):
+    """
+    top, left, right, bottom
+    """
+    x, y, w, h = rect
+    return [(x+w//2,y), (x, y+h//2), (x+w, y+h//2), (x+w//2, y+h)]
+
 def intersects(r1, r2):
     for point in corners(r1):
         if point_in_rect(r2, point):

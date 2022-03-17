@@ -15,7 +15,7 @@ class Healer(Character):
     def interact(self, scene):
         scene.show_message("Take a rest?")
         rest_hours = menu.FloatingMenu(0, settings.VIEW_HEIGHT -10,
-                list([(str(i) +" hours", i ) for i in range(10)]), bg = scene,
+                list([(f"{i} hours", i ) for i in range(10)]), bg = scene,
                 title = "Rest?")
         hours = control.takeover(rest_hours)
         one_hour = datetime.timedelta(hours = 1)
