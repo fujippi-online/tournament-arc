@@ -107,6 +107,8 @@ class House:
             if y+h > self.height:
                 self.height = y+h
     def generate(self, scene, x, y):
+        area = (x, y, self.width, self.height)
+        scene.background.fill_rect(roguemap.t_grass, area)
         for items, box in zip(self.rooms, self.room_boxes):
             bx, by, bw, bh = box
             box_pos = (bx+x, by+y, bw, bh)
@@ -195,6 +197,70 @@ class ZonePacker:
         map_util.reposition_item(scene, map_box, scene.hero)
         return scene
 
+
+class CavernZonePacker:
+    def __init__(self, required_zones, zone_gen, size = None, 
+            ground = roguemap.t_dirt, scatter = None,
+            wall = roguemap.t_tree, padding = 10):
+        self.ground = ground
+        self.wall = wall
+        self.padding = padding
+        if not scatter:
+            self.scatter = []
+        else:
+            self.scatter = scatter
+        if not size:
+            size = len(required_zones)
+        else:
+            self.size = size
+        to_gen = self.size - len(required_zones)
+        generated_zones = []
+        for x in range(to_gen):
+            generated_zones.append(zone_gen.gen_drop())
+        self.zones = required_zones + generated_zones
+        self.plan()
+    def plan(self):
+        print("Planning map by packing cavern...")
+        random.shuffle(self.zones)
+        pad = self.padding
+        sizes = list([(z.width+pad, z.height+pad) for z in self.zones])
+        positions = rpack.pack(sizes)
+        self.zone_positions = positions
+        self.width, self.height = rpack.bbox_size(sizes, positions)
+        map_box = (0,0,self.width, self.height)
+        exits = geometry.side_middles(map_box)
+        self.up_exit, self.left_exit, self.right_exit, self.down_exit = exits
+    def generate(self):
+        print("Generating zones...")
+        scene = MapScene()
+        map_box = (0,0,self.width, self.height)
+        scene.background.fill_rect(self.wall, map_box)
+        for tile, amt in self.scatter:
+            map_util.scatter(scene, map_box, tile, amt)
+        scene.background.draw_rect(self.wall, map_box)
+        zone_rects = []
+        for position, zone in zip(self.zone_positions, self.zones):
+            x, y = position
+            r_zone = (x+self.padding//2, y+self.padding//2,zone.width, 
+                    zone.height)
+            pathing_bubble = geometry.grow(r_zone, 2)
+            scene.background.fill_rect(self.ground, pathing_bubble)
+            zone.generate(scene, x+self.padding//2, y+self.padding//2)
+            zone_rects.append(r_zone)
+        while len(zone_rects) > 1:
+            r1 = zone_rects.pop()
+            r2 = geometry.closest_rect(r1, zone_rects)
+            p1, p2 = geometry.rect_closest_points(r1, r2)
+            radius = 2
+            for c in geometry.iter_line(p1, p2):
+                for p in geometry.iter_circle(c, radius):
+                    if not geometry.point_in_rect(r1, p) and\
+                            not geometry.point_in_rect(r2, p):
+                                scene.background.tiles[p] = self.ground
+        map_util.reposition_item(scene, map_box, scene.hero)
+        return scene
+
+
 city_zones = drops.DropRegister() 
 def battle_house():
     flag = battle.BattleTeam()
@@ -209,8 +275,10 @@ city_zones.add(battle_house, drops.common)
 def city_park():
     return Park(random.randint(12,25), random.randint(10,25))
 city_zones.add(city_park, drops.rare)
-test_city = ZonePacker([], city_zones, size = 100)
-
+test_city = ZonePacker([], city_zones, size = 100,
+        scatter = [(roguemap.t_grass, 1000)])
+test_forest = CavernZonePacker([], city_zones, size = 100,
+        scatter = [(roguemap.t_grass, 500), (roguemap.t_flower, 30)])
 # CountryMap generates the world map for one country, filling its w,h sized
 # grid with SceneGenerators and then when generate() is called, makes all the
 # maps in the grid, joins them together and returns them in a list 

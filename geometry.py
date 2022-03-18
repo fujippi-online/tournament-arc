@@ -136,6 +136,16 @@ def rect_closest_points(rect1, rect2):
 def rect_distance(rect1, rect2):
     return distance(*rect_closest_points(rect1, rect2))
 
+def closest_rect(r1, rects):
+    closest = None
+    dist = None
+    for r2 in rects:
+        d = rect_distance(r1, r2)
+        if dist == None or d < dist:
+            dist = d
+            closest = r2
+    return closest
+
 def rect_center(rect):
     x,y,w,h = rect
     return (x+w//2, y+h//2)
