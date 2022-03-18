@@ -112,7 +112,7 @@ class InputBox:
             if key_name == "KEY_ENTER":
                 return self.text
             elif key_name == "KEY_BACKSPACE":
-                self.text = self.text[:-2]
+                self.text = self.text[:-1]
             elif key in string.printable:
                 self.text += key
             self.render()

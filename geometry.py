@@ -138,7 +138,13 @@ def rect_distance(rect1, rect2):
 
 def rect_center(rect):
     x,y,w,h = rect
-    return (x+w/2, y+h/2)
+    return (x+w//2, y+h//2)
+
+def rect_centered_on(point, w, h):
+    x,y = point
+    rx = x - w//2
+    ry = y - h//2
+    return (rx, ry, w, h)
 
 def rect_grid_translate(rect, xxx_todo_changeme):
     """

@@ -2,6 +2,8 @@ import random
 import math
 import time
 
+import rpack
+
 import adventure
 import geometry
 import cast
@@ -122,10 +124,77 @@ class House:
         fd.color = "red"
         scene.foreground.append(fd)
 
+class Park:
+    def __init__(self, w, h):
+        self.width = w
+        self.height = h
+        self.plan()
+    def plan(self):
+        self.pool_width = self.width//3
+        self.pool_height = self.width//3
+    def generate(self, scene, x, y):
+        area = (x, y, self.width, self.height)
+        center = geometry.rect_center(area)
+        scene.background.fill_rect(roguemap.t_grass, area)
+        num_flowers = self.width
+        map_util.scatter(scene, area, roguemap.t_flower, num_flowers)
+        shore_w = self.pool_width + 2
+        shore_h = self.pool_width + 2
+        pool_rect = geometry.rect_centered_on(center, 
+                self.pool_width, self.pool_height)
+        shore_rect = geometry.rect_centered_on(center, shore_w, shore_h) 
+        scene.background.fill_rect(roguemap.t_dirt, shore_rect)
+        scene.background.fill_rect(roguemap.t_water, pool_rect)
+
 # API SceneGenerator
 # class which provides generate(scene), which fills the given MapScene
 # with the given contents and link tile spots in left_exit, right_exit, up_exit
 # and down_exit which are None if there's no possible exit in that direction.
+
+class ZonePacker:
+    def __init__(self, required_zones, zone_gen, size = None, 
+            ground = roguemap.t_dirt, scatter = None,
+            border = roguemap.t_tree):
+        self.ground = ground
+        self.border = border
+        if not scatter:
+            self.scatter = []
+        else:
+            self.scatter = scatter
+        if not size:
+            size = len(required_zones)
+        else:
+            self.size = size
+        to_gen = self.size - len(required_zones)
+        generated_zones = []
+        for x in range(to_gen):
+            generated_zones.append(zone_gen.gen_drop())
+        self.zones = required_zones + generated_zones
+        self.plan()
+    def plan(self):
+        print("Planning map by packing zones...")
+        random.shuffle(self.zones)
+        sizes = list([(z.width+2, z.height+2) for z in self.zones])
+        positions = rpack.pack(sizes)
+        self.zone_positions = positions
+        self.width, self.height = rpack.bbox_size(sizes, positions)
+        map_box = (0,0,self.width, self.height)
+        exits = geometry.side_middles(map_box)
+        self.up_exit, self.left_exit, self.right_exit, self.down_exit = exits
+    def generate(self):
+        print("Generating zones...")
+        scene = MapScene()
+        map_box = (0,0,self.width, self.height)
+        scene.background.fill_rect(self.ground, map_box)
+        for tile, amt in self.scatter:
+            map_util.scatter(scene, map_box, tile, amt)
+        scene.background.draw_rect(self.border, map_box)
+        for position, zone in zip(self.zone_positions, self.zones):
+            x, y = position
+            zone.generate(scene, x+1, y+1)
+        map_util.reposition_item(scene, map_box, scene.hero)
+        return scene
+
 city_zones = drops.DropRegister() 
 def battle_house():
     flag = battle.BattleTeam()
@@ -137,70 +206,10 @@ def battle_house():
     return House(list([(npc, loot.city_loot.gen_drop()) for npc in team]))
 city_zones.add(battle_house, drops.common)
 
-class City:
-    def __init__(self, required_zones, zone_gen, size = None):
-        self.required_zones = required_zones
-        if not size:
-            x = int(math.sqrt(len(required_zones)))+1
-            self.size = (x,x)
-        else:
-            self.size = size
-            sw,sh = size
-            assert sw*sh > len(required_zones)
-        points = []
-        self.rows = []
-        w,h = self.size
-        for i in range(w):
-            row = []
-            for j in range(h):
-                row.append(None)
-                points.append((i,j))
-            self.rows.append(row)
-        random.shuffle(points)
-        for zone in required_zones:
-            zx, zy = points.pop()
-            self.rows[zy][zx] = zone
-        for zx, zy in points:
-            self.rows[zy][zx] = zone_gen.gen_drop()
-        min_col_heights = []
-        min_row_widths = []
-        for row in self.rows:
-            min_row_widths.append(sum([zone.height + 2 for zone in row]))
-        for col in range(len(self.rows[0])):
-            col_height = 0
-            for row in range(len(self.rows)):
-                col_height += self.rows[row][col].height+2
-            min_col_heights.append(col_height)
-        self.height = max(min_col_heights)
-        self.width = max(min_row_widths)
-        city_box = (0,0,self.width, self.height)
-        exits = geometry.side_middles(city_box)
-        self.up_exit, self.left_exit, self.right_exit, self.down_exit = exits
-    def generate(self):
-        scene = MapScene()
-        city_box = (0,0,self.width, self.height)
-        scene.background.fill_rect(roguemap.t_dirt, city_box)
-        map_util.scatter(scene, city_box, roguemap.t_tree, 100)
-        map_util.scatter(scene, city_box, roguemap.t_grass, 300)
-        scene.background.draw_rect(roguemap.t_tree, city_box)
-        generated_positions = []
-        for i, row in enumerate(self.rows):
-            generated_positions.append([])
-            for j, zone in enumerate(row):
-                if i == 0:
-                    y = 1
-                else:
-                    y = generated_positions[i-1][j][1] + 2
-                if j == 0:
-                    x = 1
-                else:
-                    x = generated_positions[i][j-1][0] + 2
-                generated_positions[i].append((x+zone.width, y+zone.height))
-                zone.generate(scene, x, y)
-        map_util.reposition_item(scene, city_box, scene.hero)
-        return scene
-
-test_city = City([], city_zones, size = (10,10))
+def city_park():
+    return Park(random.randint(12,25), random.randint(10,25))
+city_zones.add(city_park, drops.rare)
+test_city = ZonePacker([], city_zones, size = 100)
 
 # CountryMap generates the world map for one country, filling its w,h sized
 # grid with SceneGenerators and then when generate() is called, makes all the

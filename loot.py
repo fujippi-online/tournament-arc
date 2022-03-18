@@ -12,7 +12,7 @@ class Loot(Item):
         self.loot_type = loot_type
         self.adjective = adj
         self.value = value
-        self.name = adj+loot_type
+        self.name = f"{adj} {loot_type}"
 
 city_loot = drops.DropRegister()
 jewelery_types = [
@@ -21,7 +21,7 @@ jewelery_types = [
         "bracelet",
         "pendant",
         "watch",
-        "pocketwatch",
+       "pocketwatch",
         "coin",
     ]
 expensive_jewelery_adjectives = [
@@ -43,7 +43,7 @@ def cheap_jewels():
     value = random.randint(1,10)*5
     return Loot(item, adj, value)
 def expensive_jewels():
-    adj = random.choice(cheap_jewelery_adjectives)
+    adj = random.choice(expensive_jewelery_adjectives)
     item = random.choice(jewelery_types)
     value = random.randint(1,10)*5
     return Loot(item, adj, value)

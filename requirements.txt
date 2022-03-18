@@ -13,3 +13,4 @@ tqdm==4.63.0
 typing_extensions==4.1.1
 wcwidth==0.2.5
 zipp==3.7.0
+rectangle-packer
