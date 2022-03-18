@@ -247,6 +247,7 @@ class CavernZonePacker:
             scene.background.fill_rect(self.ground, pathing_bubble)
             zone.generate(scene, x+self.padding//2, y+self.padding//2)
             zone_rects.append(r_zone)
+        zone_ref = list(zone_rects)
         while len(zone_rects) > 1:
             r1 = zone_rects.pop()
             r2 = geometry.closest_rect(r1, zone_rects)
@@ -254,9 +255,8 @@ class CavernZonePacker:
             radius = 2
             for c in geometry.iter_line(p1, p2):
                 for p in geometry.iter_circle(c, radius):
-                    if not geometry.point_in_rect(r1, p) and\
-                            not geometry.point_in_rect(r2, p):
-                                scene.background.tiles[p] = self.ground
+                    if not geometry.point_in_rects(zone_ref, p):
+                        scene.background.tiles[p] = self.ground
         map_util.reposition_item(scene, map_box, scene.hero)
         return scene
 

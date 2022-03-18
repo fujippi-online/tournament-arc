@@ -8,6 +8,12 @@ def point_in_rect(rect, point):
     else:
         return False
 
+def point_in_rects(rects, point):
+    for rect in rects:
+        if point_in_rect(rect, point):
+            return True
+    return False
+
 def corners(rect):
     x, y, w, h = rect
     return [(x,y), (x+w, y), (x+w, y+h), (x, y+h)]
