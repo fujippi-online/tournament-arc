@@ -68,14 +68,31 @@ def generate_def(type1, type2, power = 1):
     while name in names_in_use:
         pat = random.choice(name_patterns)
         name = pat(type1, type2, move_type)
-    return Move(name.capitalize(), type1, type2, move_type)
+
+    defns = Move(name.capitalize(), type1, type2, move_type)
+    t1_strong = adventure.current.strong_vs[type1]
+    t2_strong = adventure.current.strong_vs[type2]
+    strong = list(random.sample(t1_strong+t2_strong,k=power))
+    defns.strong_vs = strong
+    return defns
 def generate_fin(type1, type2, power = 1):
     move_type = random.choice(move_types.fintypes) 
     name = None
     while name in names_in_use:
         pat = random.choice(fin_name_patterns)
         name = pat(type1, type2, move_type)
-    return Move(name.capitalize(), type1, type2, move_type)
+    fin = Move(name.capitalize(), type1, type2, move_type)
+    t1_strong = adventure.current.strong_vs[type1]
+    t2_strong = adventure.current.strong_vs[type2]
+    strong = list(random.sample(t1_strong+t2_strong,k=power))
+    fin.strong_vs = strong
+    t1_resist = adventure.current.resisted_by[type1]
+    t2_resist = adventure.current.resisted_by[type2]
+    resist = 6-power
+    if resist < 1:
+        resist = 1
+    fin.resisted_by = list(random.sample(t1_resist+t2_resist,k=resist))
+    return fin
 
 
 if __name__ == "__main__":

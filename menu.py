@@ -100,7 +100,8 @@ class InputBox:
         self.w = settings.BAT_WIDTH
         self.h = 1
     def update(self, ignore):
-        self.bg.render()
+        if self.bg:
+            self.bg.render()
         self.render()
         while True:
             key = core.term.inkey()
@@ -123,8 +124,45 @@ class InputBox:
         draw_textbox((self.x, self.y, self.w, self.h+2),
                 [f"{self.prompt} {self.text}"])
 
+class LyricInput:
+    def __init__(self, lyric_format, bg = None):
+        self.bg = bg
+        self.x, self.y = 0,0
+        self.text = ""
+        self.lyric_format = lyric_format
+        self.w = settings.BAT_WIDTH
+        self.h = settings.VIEW_HEIGHT
+    def update(self, ignore):
+        if self.bg:
+            self.bg.render()
+        self.render()
+        while True:
+            key = core.term.inkey()
+            key_name = None
+            if key.name:
+                key_name = key.name
+            if not key_name:
+                key_name = tag_key(term, key)
+            if key_name == "KEY_ENTER":
+                result = self.lyric_format.add_line(self.text)
+                self.text = ""
+                if result:
+                    return result
+            elif key_name == "KEY_BACKSPACE":
+                self.text = self.text[:-1]
+            elif key in string.printable:
+                self.text += key
+            self.render()
+    def initial_render(self):
+        if self.bg:
+            self.bg.render()
+    def render(self):
+        draw_textbox((self.x, self.y, self.w, self.h+2),
+                list(self.lyric_format.lines[-self.h+1:]) + [self.text+"*"])
+
 class FloatingMenu:
-    def __init__(self, x, y, menu_entries, title = None, bg = None):
+    def __init__(self, x, y, menu_entries, title = None, bg = None,
+            item_info = None):
         """
         x,y is coords of topleft
         menu will resize to fit entries
@@ -141,11 +179,16 @@ class FloatingMenu:
         self.item_names, self.menu_actions = list(zip(*menu_entries))
         self.item_names = list(self.item_names)
         self.menu_actions = list(self.menu_actions)
+        self.info_list = item_info
         if title:
             self.entry_width = max([len(e) for e in self.item_names+[title]])
         else:
             self.entry_width = max([len(e) for e in self.item_names])
         self.title = title
+        if self.info_list:
+            self.info_width = settings.BAT_WIDTH - self.entry_width -2
+        else:
+            self.info_width = 0
     @property
     def selected_entry(self):
         return self.menu_actions[self.cursor_pos]
@@ -199,11 +242,19 @@ class FloatingMenu:
                     print((m_color("|   "+item+padding+"|")))
         with term.location(self.x, self.y+len(self.entries)+y_offset):
             print(m_color(horizontal_divider))
+        if self.info_list:
+            info = self.info_list[self.cursor_pos]
+            y = self.y + (len(self.entries) - len(info))
+            draw_textbox((self.x+self.entry_width+2, self.y, self.info_width,
+                    len(info)+2), info)
     def remove(self, menu_entry):
         label, item = menu_entry
+        pos = self.entries.index(menu_entry)
         self.entries.remove(menu_entry)
         self.item_names.remove(label)
         self.menu_actions.remove(item)
+        if self.info_list:
+            self.info_list.remove(self.info_list[pos])
 
 TITLE_HEIGHT = 3
 VERTICAL_PADDING = 4

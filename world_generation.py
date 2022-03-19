@@ -260,7 +260,6 @@ class CavernZonePacker:
         map_util.reposition_item(scene, map_box, scene.hero)
         return scene
 
-
 city_zones = drops.DropRegister() 
 def battle_house():
     flag = battle.BattleTeam()

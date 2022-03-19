@@ -60,22 +60,34 @@ class Battle:
         self.player_actions = []
         self.opp_actions = []
         actions_picked = 0
-        action_menu = menu.FloatingMenu(0,settings.VIEW_HEIGHT-1,[
+        action_menu = menu.FloatingMenu(0,settings.VIEW_HEIGHT-4,[
             ("Attack", "atk"),
             ("Defend", "def"),
             ("Finish", "fin"),
             ("Tag-out","tag"),
-            ("Forfiet","for"),
-            ], bg = self)
+            ("Forfeit","for"),
+            ], bg = self, title = "Action 1")
         cancel_option = [("Cancel", "x")]
         mon = self.current_mon
         while actions_picked < 2:
+            action_menu.title = f"Action {1+actions_picked}"
             action = takeover(action_menu)
             if action == "atk":
                 options =  list([(move.name, move) for move in mon.attacks])
                 options += cancel_option
+                info = []
+                for move in mon.attacks:
+                    t1 = move.type1.name
+                    t2 = move.type2.name
+                    strong = list(set([typ.name for typ in move.strong_vs]))
+                    resist = list(set([typ.name for typ in move.resisted_by]))
+                    move_info = [f"{t1} / {t2}",
+                            f"Strong vs: {', '.join(strong)}",
+                            f"Resisted by: {', '.join(resist)}"]
+                    info.append(move_info)
+                info.append("")
                 move_menu = menu.FloatingMenu(0, settings.VIEW_HEIGHT, 
-                        options, bg = self)
+                        options, bg = self, item_info = info)
                 move = takeover(move_menu)
                 if move != "x":
                     self.player_actions.append(move)
@@ -84,8 +96,18 @@ class Battle:
             elif action == "def":
                 options =  list([(move.name, move) for move in mon.defences])
                 options += cancel_option
+                info = []
+                for move in mon.defences:
+                    t1 = move.type1.name
+                    t2 = move.type2.name
+                    strong = list(set([typ.name for typ in move.strong_vs]))
+                    resist = list(set([typ.name for typ in move.resisted_by]))
+                    move_info = [f"{t1} / {t2}",
+                            f"Strong vs: {', '.join(strong)}"]
+                    info.append(move_info)
+                info.append("")
                 move_menu = menu.FloatingMenu(0, settings.VIEW_HEIGHT, 
-                        options, bg = self)
+                        options, bg = self, item_info = info)
                 move = takeover(move_menu)
                 if move != "x":
                     self.player_actions.append(move)
@@ -94,8 +116,19 @@ class Battle:
             elif action == "fin":
                 options =  list([(move.name, move) for move in mon.finishers])
                 options += cancel_option
+                info = []
+                for move in mon.finishers:
+                    t1 = move.type1.name
+                    t2 = move.type2.name
+                    strong = list(set([typ.name for typ in move.strong_vs]))
+                    resist = list(set([typ.name for typ in move.resisted_by]))
+                    move_info = [f"{t1} / {t2}",
+                            f"Strong vs: {', '.join(strong)}",
+                            f"Resisted by: {', '.join(resist)}"]
+                    info.append(move_info)
+                info.append("")
                 move_menu = menu.FloatingMenu(0, settings.VIEW_HEIGHT, 
-                        options, bg = self)
+                        options, bg = self, item_info = info)
                 move = takeover(move_menu)
                 if move != "x":
                     self.player_actions.append(move)
