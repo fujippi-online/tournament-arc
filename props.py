@@ -2,6 +2,7 @@ import message
 import menu
 import control
 import core
+import random
 
 class Smoke:
     name = "Smoke"
@@ -20,6 +21,33 @@ class Smoke:
         self.time -= 1
         if self.time == 0:
             scene.destroy(self)
+
+class Fog:
+    name = "Fog"
+    color = "bright_black"
+    symbol = chr(167)
+    blocks = False
+    clear = False
+    def __init__(self, x, y, time):
+        self.x = x
+        self.y = y
+        self.time = time
+    @property
+    def position(self):
+        return self.x, self.y
+    def update(self, scene):
+        if random.random() < 0.05:
+            self.x -= 1
+        elif random.random() < 0.3:
+            self.y += random.choice([-1, 1])
+        self.time -= 1
+        if self.time == 0:
+            scene.destroy(self)
+class Mist(Fog):
+    name = "Mist"
+    color = "white"
+    blocks = False
+    clear = True
 
 class Sign:
     name = "Sign"

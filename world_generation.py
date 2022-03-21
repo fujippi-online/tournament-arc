@@ -14,6 +14,7 @@ import door
 import map_util
 import loot
 import roguemap
+import weather
 from map_scene import MapScene
 from core import term
 
@@ -348,7 +349,11 @@ test_city = ZonePacker([], city_zones, size = 100,
         scatter = [(roguemap.t_grass, 1000)])
 test_forest = CavernZonePacker([], city_zones, size = 100,
         scatter = [(roguemap.t_grass, 500), (roguemap.t_flower, 30)])
-test_forest.vision_range = 7
+def generate_forest():
+    f = test_forest.generate()
+    f.vision_range = 7
+    f.undercoat.append(weather.MistyUndercoat())
+    return f
 test_plateau = PlateauZonePacker([], city_zones, size = 100,
         scatter = [(roguemap.t_grass, 500), (roguemap.t_flower, 30)])
 # CountryMap generates the world map for one country, filling its w,h sized

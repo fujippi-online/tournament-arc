@@ -13,12 +13,10 @@ import mons
 import term_interpreter
 import cast
 import map_util
+import world_generation
 from title_screen import TitleScreen
-from undercoat import DynamicChunkMapGen, AreaGridChunkGen
 from control import takeover
 from core import term
-from map_scene import MapScene
-from world_generation import test_city, test_forest, test_plateau
 def tutorial():
         tutorial_message = [
             "Welcome to the world of MONS.",
@@ -39,7 +37,7 @@ def tutorial():
         for msg in tutorial_message:
             game.show_message(msg)
 def run_game():
-    game = test_plateau.generate()
+    game = world_generation.generate_forest()
     adventure.current.scene = game
     adventure.current.revive_point = (game, game.hero.position)
     print(term.width, term.height)
