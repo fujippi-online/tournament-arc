@@ -48,7 +48,8 @@ class Battle:
     def __init__(self, opposing_team):
         self.opp = opposing_team
         self.current_opp = opposing_team[0]
-        self.current_mon = adventure.current.party[0]
+        available_mons = [m for m in adventure.current_party if m.can_battle]
+        self.current_mon = available_mons[0]
         self.player_actions = []
         self.opp_actions = []
         self.player_tag = None
@@ -199,8 +200,8 @@ class Battle:
         if self.opp_tag:
             self.show_message(f"{self.current_opp.name} taggged out for "
                     f"{self.opp_tag.name}")
-            self.current_mon = self.player_tag
-            self.player_tag = None
+            self.current_opp = self.opp_tag
+            self.opp_tag = None
         # KO swap and victory/loss phase
         if not self.current_mon.can_battle:
             self.show_message(f"{self.current_mon.name} can no longer battle.")
