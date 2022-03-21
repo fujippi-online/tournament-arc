@@ -1,5 +1,7 @@
 from collections import deque
 
+PATH_LIMIT = 1000
+
 class Mask:
     def __init__(self, x, y):
         self.x = x
@@ -37,6 +39,8 @@ def _path(background, p1_node, p2, frontier, visited, seen, things = None):
                 seen.add(point)
                 frontier.appendleft(Node(point, node))
         visited.add(node.point)
+        if len(visited) > PATH_LIMIT:
+            return None
     return None
 def path(background, p1, p2, things = None):
     return _path(background, Node(p1, None), p2, deque(), set(), set(), things = None)
