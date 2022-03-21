@@ -32,6 +32,7 @@ class Character:
             return
         step = path[0]
         if scene.passable(*step):
+            scene.decache_position(self)
             self.x, self.y = step
             scene.recache_position(self)
     def move_away_from(self, scene, point):
@@ -40,6 +41,7 @@ class Character:
         steps = [p for p in gaps if scene.passable(*p)]
         step = max(steps, key = lambda p: distance(p, point))
         if step:
+            scene.decache_position(self)
             self.x, self.y = step
             scene.recache_position(self)
     def hero_adjacent(self, scene):
@@ -52,7 +54,9 @@ class Character:
         free_spots = [p for p in adjacent_spots if (not scene.things_at(*p) and
                 not scene.background[p].blocks)]
         if free_spots:
+            scene.decache_position(self)
             self.x, self.y = random.choice(free_spots)
+            scene.recache_position(self)
 
 class Follower(Character):
     color = "green"

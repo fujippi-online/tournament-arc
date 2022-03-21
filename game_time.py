@@ -36,6 +36,6 @@ class TimeVisionUndercoat:
         base_vision = NIGHT_VISION + amplitude
         adjustment = amplitude*-math.cos(2*math.pi*sun_phase)
         current_vision = base_vision + adjustment
-        scene.hero.vision_range = int(current_vision)
+        scene.vision_range = int(current_vision)
 
 

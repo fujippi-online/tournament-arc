@@ -20,11 +20,11 @@ class Hero(Character):
     color = "blue_on_white"
     inventory = []
     is_hero = True
-    vision_range = 8
 
 
 class MapScene:
     def __init__(self):
+        self.vision_range = 15
         self.background = roguemap.Map()
         self.foreground = []
         self.undercoat = []
@@ -53,6 +53,13 @@ class MapScene:
             except KeyError:
                 self.location_cache[thing.position] = [thing]
         self.locations_cached = True
+    def decache_position(self, thing):
+        try:
+            self.location_cache[thing.position].remove(thing)
+        except ValueError:
+            pass
+        except KeyError:
+            pass
     def recache_position(self, thing):
             try:
                 self.location_cache[thing.position].append(thing)
@@ -179,7 +186,7 @@ class MapScene:
             if geometry.point_in_rect(camera.rect, thing.position):
                 sx, sy = camera.adjust(*thing.position)
                 if self.visible(hero.position, thing.position, 
-                        vision_range = hero.vision_range)\
+                        vision_range = self.vision_range)\
                         and hero.position != thing.position:
                     object_positions.add(thing.position)
                     if hasattr(thing, 'hero_seen'):
@@ -216,7 +223,7 @@ class MapScene:
                 wx, wy = camera.invert(x,y)
                 if (wx, wy) not in object_positions:
                     if self.visible(hero.position, (wx,wy), vision_range =
-                            hero.vision_range):
+                            self.vision_range):
                         with term.location(x,y):
                             self.seen.add((wx, wy))
                             t_color = getattr(term, tile.color)

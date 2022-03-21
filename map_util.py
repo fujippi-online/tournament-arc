@@ -17,10 +17,13 @@ def place_item(scene, chunk, item):
     x, y = free_point_in_chunk(scene, chunk)
     item.x, item.y = x, y
     scene.foreground.append(item)
+    scene.recache_position(item)
 
 def reposition_item(scene, chunk, item):
+    scene.decache_position(item)
     x, y = free_point_in_chunk(scene, chunk)
     item.x, item.y = x, y
+    scene.recache_position(item)
 
 def scatter(scene, chunk, tile, amount):
     cx,cy,cw,ch = chunk
