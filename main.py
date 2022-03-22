@@ -37,7 +37,8 @@ def tutorial():
         for msg in tutorial_message:
             game.show_message(msg)
 def run_game():
-    game = world_generation.generate_forest()
+    world_map = world_generation.test_country.generate()
+    game = world_map[1][0]
     adventure.current.scene = game
     adventure.current.revive_point = (game, game.hero.position)
     print(term.width, term.height)
@@ -75,10 +76,6 @@ def run_game():
             adventure.current.scene.update(term_interpreter.get_signal())
             adventure.current.scene.render()
             message.log.render(term)
-            if adventure.current.scene.transition_with:
-                next_scene = aventure.current.scene.transition_with
-                adventure.current.scene.transition_with = None
-                adventure.current.scene = next_scene
-                adventure.current.scene.render()
+            adventure.current.scene.render()
 if __name__ == '__main__':
     run_game()

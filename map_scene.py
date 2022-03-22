@@ -34,7 +34,6 @@ class MapScene:
         self.seen = set()
         self.turn_num = 0
         self.to_remove = []
-        self.transition_with = None
         self.location_cache = {}
         self.locations_cached = False
         self.all_seeing = False

@@ -15,6 +15,7 @@ import map_util
 import loot
 import roguemap
 import weather
+from gatepoint import Gatepoint
 from map_scene import MapScene
 from core import term
 
@@ -231,6 +232,7 @@ class CavernZonePacker:
         self.width, self.height = rpack.bbox_size(sizes, positions)
         map_box = (0,0,self.width, self.height)
         exits = geometry.side_middles(map_box)
+        self.exits = exits
         self.up_exit, self.left_exit, self.right_exit, self.down_exit = exits
     def generate(self):
         print("Generating zones...")
@@ -239,7 +241,6 @@ class CavernZonePacker:
         scene.background.fill_rect(self.wall, map_box)
         for tile, amt in self.scatter:
             map_util.scatter(scene, map_box, tile, amt)
-        scene.background.draw_rect(self.wall, map_box)
         zone_rects = []
         for position, zone in zip(self.zone_positions, self.zones):
             x, y = position
@@ -259,7 +260,15 @@ class CavernZonePacker:
                 for p in geometry.iter_circle(c, radius):
                     if not geometry.point_in_rects(zone_ref, p):
                         scene.background.tiles[p] = self.ground
+        for exit in self.exits:
+            closest_rect = geometry.point_closest_rect(exit, zone_ref)
+            p2 = geometry.rect_center(closest_rect)
+            for c in geometry.iter_line(exit, p2):
+                for p in geometry.iter_circle(c, radius):
+                    if not geometry.point_in_rects(zone_ref, p):
+                        scene.background.tiles[p] = self.ground
         map_util.reposition_item(scene, map_box, scene.hero)
+        scene.background.draw_rect(self.wall, map_box)
         return scene
 
 class PlateauZonePacker:
@@ -293,6 +302,7 @@ class PlateauZonePacker:
         self.width, self.height = rpack.bbox_size(sizes, positions)
         map_box = (0,0,self.width, self.height)
         exits = geometry.side_middles(map_box)
+        self.exits = exits
         self.up_exit, self.left_exit, self.right_exit, self.down_exit = exits
     def generate(self):
         print("Generating zones...")
@@ -329,6 +339,15 @@ class PlateauZonePacker:
                 for p in geometry.iter_circle(c, radius):
                     if not geometry.point_in_rects(zone_ref, p):
                         scene.background.tiles[p] = self.ground
+        for exit in self.exits:
+            closest_rect = geometry.point_closest_rect(exit, zone_ref)
+            p2 = geometry.rect_center(closest_rect)
+            for c in geometry.iter_line(exit, p2):
+                for p in geometry.iter_circle(c, radius):
+                    if not geometry.point_in_rects(zone_ref, p):
+                        scene.background.tiles[p] = self.ground
+        map_util.reposition_item(scene, map_box, scene.hero)
+        scene.background.draw_rect(self.wall, map_box)
         map_util.reposition_item(scene, map_box, scene.hero)
         return scene
 city_zones = drops.DropRegister() 
@@ -345,17 +364,72 @@ city_zones.add(battle_house, drops.common)
 def city_park():
     return Park(random.randint(12,25), random.randint(10,25))
 city_zones.add(city_park, drops.rare)
-test_city = ZonePacker([], city_zones, size = 100,
+test_city = ZonePacker([], city_zones, size = 25,
         scatter = [(roguemap.t_grass, 1000)])
-test_forest = CavernZonePacker([], city_zones, size = 100,
+test_forest = CavernZonePacker([], city_zones, size = 25,
         scatter = [(roguemap.t_grass, 500), (roguemap.t_flower, 30)])
 def generate_forest():
     f = test_forest.generate()
     f.vision_range = 7
     f.undercoat.append(weather.MistyUndercoat())
     return f
-test_plateau = PlateauZonePacker([], city_zones, size = 100,
+test_plateau = PlateauZonePacker([], city_zones, size = 25,
         scatter = [(roguemap.t_grass, 500), (roguemap.t_flower, 30)])
 # CountryMap generates the world map for one country, filling its w,h sized
-# grid with SceneGenerators and then when generate() is called, makes all the
-# maps in the grid, joins them together and returns them in a list 
+# grid with SceneGenerators,
+# and then when generate() is called, makes all the
+# maps in the grid, joins them together and returns them in a grid like the one
+# passed to it, but containing scenes instead of generators
+class CountryMap:
+    def __init__(self, rows):
+        self.rows = rows
+        self.scene_rows = []
+    def generate(self):
+        height = len(self.rows)
+        width = len(self.rows[0])
+        for row in self.rows:
+            scene_row = []
+            for generator in row:
+                if generator != None:
+                    if hasattr(generator, "generate"):
+                        scene_row.append(generator.generate())
+                    elif callable(generator):
+                        scene_row.append(generator())
+            self.scene_rows.append(scene_row)
+        for x in range(width):
+            for y in range(height):
+                current_scene = self.scene_rows[y][x] 
+                current_gen = self.rows[y][x]
+                if y > 0 and self.rows[y-1][x] and self.rows[y][x]:
+                    up_scene = self.scene_rows[y-1][x]
+                    up_gen = self.rows[y-1][x]
+                    up_scene.background.tiles[up_gen.down_exit] =\
+                            roguemap.t_floor
+                    current_scene.background.tiles[current_gen.up_exit] =\
+                            roguemap.t_floor
+                    go_up = Gatepoint(current_gen.up_exit, up_gen.down_exit,
+                            up_scene)
+                    go_down = Gatepoint(up_gen.down_exit, current_gen.up_exit,
+                            current_scene)
+                    current_scene.foreground.append(go_up)
+                    up_scene.foreground.append(go_down)
+                if x > 0 and self.rows[y][x-1] and self.rows[y][x]:
+                    left_scene = self.scene_rows[y][x-1]
+                    left_gen = self.rows[y][x-1]
+                    left_scene.background.tiles[left_gen.right_exit] =\
+                            roguemap.t_floor
+                    current_scene.background.tiles[current_gen.left_exit] =\
+                            roguemap.t_floor
+                    go_left = Gatepoint(current_gen.left_exit, 
+                            left_gen.right_exit, left_scene)
+                    go_right = Gatepoint(left_gen.right_exit, 
+                            current_gen.left_exit, current_scene)
+                    current_scene.foreground.append(go_left)
+                    left_scene.foreground.append(go_right)
+        return self.scene_rows
+
+test_country = CountryMap(
+        [
+            [test_forest, test_plateau], 
+            [test_city, test_forest],
+        ])

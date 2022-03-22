@@ -152,6 +152,11 @@ def closest_rect(r1, rects):
             closest = r2
     return closest
 
+def point_closest_rect(p, rects):
+    x,y = p
+    r1 = (x, y, 0, 0)
+    return closest_rect(r1, rects)
+
 def rect_center(rect):
     x,y,w,h = rect
     return (x+w//2, y+h//2)
