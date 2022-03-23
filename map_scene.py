@@ -37,6 +37,7 @@ class MapScene:
         self.location_cache = {}
         self.locations_cached = False
         self.all_seeing = False
+        self.name = ""
     def show_message(self, lines):
         msgbox = menu.MessageBox(lines, bg = self)
         takeover(msgbox, clear = False)

@@ -4,6 +4,7 @@ import random
 import adventure
 
 names_in_use = set([None])
+move_register = []
 class Move:
     def __init__(self, name, type1, type2, move_type):
         self.name = name
@@ -13,6 +14,8 @@ class Move:
         self.strong_vs = []
         self.resisted_by = []
         self.on_success = None
+        self.power = 1
+        move_register.append(self)
 def noun1_nounmov(type1, type2, movetype):
     name = (random.choice(type1.nouns) + " " 
             + random.choice(movetype.nouns))
@@ -52,7 +55,7 @@ def generate_atk(type1, type2, power = 2):
     atk = Move(name.capitalize(), type1, type2, move_type)
     t1_strong = adventure.current.strong_vs[type1]
     t2_strong = adventure.current.strong_vs[type2]
-    strong = list(random.sample(t1_strong+t2_strong,k=power))
+    strong = list(random.sample(t1_strong+t2_strong,k=min(power, 6)))
     atk.strong_vs = strong
     t1_resist = adventure.current.resisted_by[type1]
     t2_resist = adventure.current.resisted_by[type2]
@@ -60,6 +63,7 @@ def generate_atk(type1, type2, power = 2):
     if resist < 1:
         resist = 1
     atk.resisted_by = list(random.sample(t1_resist+t2_resist,k=resist))
+    atk.power = power
     return atk
 
 def generate_def(type1, type2, power = 1):
@@ -68,13 +72,14 @@ def generate_def(type1, type2, power = 1):
     while name in names_in_use:
         pat = random.choice(name_patterns)
         name = pat(type1, type2, move_type)
-
     defns = Move(name.capitalize(), type1, type2, move_type)
     t1_strong = adventure.current.strong_vs[type1]
     t2_strong = adventure.current.strong_vs[type2]
-    strong = list(random.sample(t1_strong+t2_strong,k=power))
+    strong = list(random.sample(t1_strong+t2_strong,k=min(power, 6)))
     defns.strong_vs = strong
+    defns.power = power
     return defns
+
 def generate_fin(type1, type2, power = 1):
     move_type = random.choice(move_types.fintypes) 
     name = None
@@ -84,7 +89,7 @@ def generate_fin(type1, type2, power = 1):
     fin = Move(name.capitalize(), type1, type2, move_type)
     t1_strong = adventure.current.strong_vs[type1]
     t2_strong = adventure.current.strong_vs[type2]
-    strong = list(random.sample(t1_strong+t2_strong,k=power))
+    strong = list(random.sample(t1_strong+t2_strong,k=min(power,6)))
     fin.strong_vs = strong
     t1_resist = adventure.current.resisted_by[type1]
     t2_resist = adventure.current.resisted_by[type2]
@@ -92,8 +97,27 @@ def generate_fin(type1, type2, power = 1):
     if resist < 1:
         resist = 1
     fin.resisted_by = list(random.sample(t1_resist+t2_resist,k=resist))
+    fin.power = power
     return fin
 
+def find_moves(type1, type2):
+    return list([ move for move in move_register
+        if move.type1 == type1 and move.type2 == type2])
+
+def find_attacks(type1, type2):
+    return list([move for move in move_register
+        if move.type1 == type1 and move.type2 == type2 and 
+        move.move_type.action == move_types.ATK])
+
+def find_defences(type1, type2):
+    return list([move for move in move_register
+        if move.type1 == type1 and move.type2 == type2 and 
+        move.move_type.action == move_types.DEF])
+
+def find_finishers(type1, type2):
+    return list([move for move in move_register
+        if move.type1 == type1 and move.type2 == type2 and 
+        move.move_type.action == move_types.FIN])
 
 if __name__ == "__main__":
     for i in range(100):

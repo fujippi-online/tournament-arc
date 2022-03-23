@@ -1,6 +1,4 @@
 import mon_types 
-from mon_species import Species
-from mons import Mon
 import random
 
 class CurrentPlaythrough:
@@ -31,10 +29,14 @@ def new_game():
     return run
 
 current = new_game()
+
+
+import mon_species
+import mons
 def generate_mons():
     print("Generating mons...")
     for i in range(150):
-        current.mons.append(Species())
+        current.mons.append(mon_species.Species())
     for i in range(4):
-        current.party.append(Mon(random.choice(current.mons)))
+        current.party.append(mons.Mon(random.choice(current.mons)))
 generate_mons()

@@ -6,7 +6,7 @@ class Gatepoint:
     blocks = True
     clear = False
     def __init__(self, p_from, p_to, scene):
-        self.symbol = "*"
+        self.symbol = "_"
         x,y = p_from
         self.x = x
         self.y = y

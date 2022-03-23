@@ -72,6 +72,7 @@ def run_game():
         map_util.place_item(game, game.camera.rect, party_member)
         game.render()
         message.log.render(term)
+        pc.level_up()
         while True:
             adventure.current.scene.update(term_interpreter.get_signal())
             adventure.current.scene.render()

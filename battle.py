@@ -48,7 +48,7 @@ class Battle:
     def __init__(self, opposing_team):
         self.opp = opposing_team
         self.current_opp = opposing_team[0]
-        available_mons = [m for m in adventure.current_party if m.can_battle]
+        available_mons = [m for m in adventure.current.party if m.can_battle]
         self.current_mon = available_mons[0]
         self.player_actions = []
         self.opp_actions = []
@@ -225,6 +225,8 @@ class Battle:
                 if teammate != self.current_opp and teammate.can_battle])
             if len(options) == 0:
                 self.show_message("The dust clears, and you are victorious.")
+                for mon in adventure.current.party:
+                    mon.handle_victory()
                 return "WIN"
             else:
                 self.current_opp = random.choice(options)
