@@ -403,27 +403,31 @@ class CountryMap:
                 if y > 0 and self.rows[y-1][x] and self.rows[y][x]:
                     up_scene = self.scene_rows[y-1][x]
                     up_gen = self.rows[y-1][x]
+                    ux, uy = up_gen.down_exit
+                    dx, dy = current_gen.up_exit
                     up_scene.background.tiles[up_gen.down_exit] =\
                             roguemap.t_floor
                     current_scene.background.tiles[current_gen.up_exit] =\
                             roguemap.t_floor
-                    go_up = Gatepoint(current_gen.up_exit, up_gen.down_exit,
+                    go_up = Gatepoint(current_gen.up_exit, (ux, uy-1),
                             up_scene)
-                    go_down = Gatepoint(up_gen.down_exit, current_gen.up_exit,
+                    go_down = Gatepoint(up_gen.down_exit, (dx, dy+1),
                             current_scene)
                     current_scene.foreground.append(go_up)
                     up_scene.foreground.append(go_down)
                 if x > 0 and self.rows[y][x-1] and self.rows[y][x]:
                     left_scene = self.scene_rows[y][x-1]
                     left_gen = self.rows[y][x-1]
+                    lx, ly = left_gen.right_exit
+                    rx, ry = current_gen.left_exit
                     left_scene.background.tiles[left_gen.right_exit] =\
                             roguemap.t_floor
                     current_scene.background.tiles[current_gen.left_exit] =\
                             roguemap.t_floor
                     go_left = Gatepoint(current_gen.left_exit, 
-                            left_gen.right_exit, left_scene)
+                            (lx-1, ly), left_scene)
                     go_right = Gatepoint(left_gen.right_exit, 
-                            current_gen.left_exit, current_scene)
+                            (rx+1, ry), current_scene)
                     current_scene.foreground.append(go_left)
                     left_scene.foreground.append(go_right)
         return self.scene_rows

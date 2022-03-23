@@ -20,10 +20,10 @@ class Gatepoint:
             self.encountered = True
     def interact(self, current_scene):
         adventure.current.scene = self.scene
-        message.log.post(f"porting to {self.tx}, {self.ty}")
         adventure.current.scene.hero.x = self.tx
         adventure.current.scene.hero.y = self.ty
         self.scene.camera.center_on(self.scene.hero)
+        self.scene.render()
     def make_reverse(self, scene):
         return Gatepoint((self.tx, self.ty), (self.x, self.y), scene)
     @property
