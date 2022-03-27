@@ -55,7 +55,8 @@ class Species:
             words += self.family.limbs
             w2 = syllable.tokenize(random.choice(words).replace(" ",""))
             while w1[0] == w2[0]:
-                w2 = syllable.tokenize(random.choice(words))
+                w1 = syllable.tokenize(random.choice(words).replace(" ",""))
+                w2 = syllable.tokenize(random.choice(words).replace(" ",""))
             max_w1 = min(len(w1), 2)
             max_w2 = min(len(w2), 2)
             w1_amt = random.randint(1, max_w1)

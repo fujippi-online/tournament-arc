@@ -15,6 +15,17 @@ VIEW_LOWER = (0,0+settings.VIEW_HEIGHT//2,
 VIEW_LEFT = (0,0,settings.BAT_WIDTH//2, settings.VIEW_HEIGHT)
 VIEW_RIGHT = (0+settings.BAT_WIDTH//2,0,settings.BAT_WIDTH//2, 
         settings.VIEW_HEIGHT)
+
+class BattleRecord:
+    def __init__(self):
+        self.koed = False
+        self.num_kos = 0
+        self.lost = False
+        self.forefeit = False
+        self.damage_dealt = 0
+        self.damage_taken = 0
+        self.participated = True
+
 def calc_damage(mon, atk, defns, state):
     damage = 2
     if state.mon_type in atk.strong_vs:
@@ -54,6 +65,8 @@ class Battle:
         self.opp_actions = []
         self.player_tag = None
         self.opp_tag = None
+        for mon in adventure.current.party + self.opp:
+            mon.battle_record = BattleRecord()
     def show_message(self, lines):
         msgbox = menu.MessageBox(lines, bg = self)
         control.takeover(msgbox, clear = False)
@@ -158,7 +171,9 @@ class Battle:
                 if move != "x":
                     self.show_message("You forfeit the battle!")
                     for mon in adventure.current.party:
-                        mon.morale -= 1
+                        mon.battle_record.loss = True
+                        mon.battle_record.forfeit = True
+                        mon.handle_battle_result()
                     return "LOSS"
         #OPP decision making (lol)
         tag_options =  list([mon 
@@ -226,7 +241,7 @@ class Battle:
             if len(options) == 0:
                 self.show_message("The dust clears, and you are victorious.")
                 for mon in adventure.current.party:
-                    mon.handle_victory()
+                    mon.battle_result()
                 return "WIN"
             else:
                 self.current_opp = random.choice(options)
@@ -267,8 +282,10 @@ class Battle:
             ko_verb = random.choice(fin_move.move_type.verbs)
             self.show_message(f"{actor.name} {ko_verb} {defender.name}")
             defender.can_battle = False
+            defender.battle_record.koed = True
+            actor.battle_record.num_kos += 1
         else:
-            self.show_message("The attack is not enough to finish"+
+            self.show_message("The attack is not enough to finish "+
                     defender.name)
     def do_player_attack(self):
         opp_def = None
@@ -305,6 +322,8 @@ class Battle:
             hit_state.do_damage(damage)
             self.show_message(f"{defender.name}'s {hit_state.name} " 
                     f"is {hit_state.state_descriptor()}.")
+            attacker.battle_record.damage_dealt += damage
+            defender.battle_record.damage_taken += damage
         elif defence == None:
             self.show_message(f"{defender.name}'s {hit_state.name}"
                     " resisted the attack")

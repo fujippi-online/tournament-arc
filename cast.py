@@ -4,6 +4,7 @@ import settings
 import control
 import adventure
 import geometry
+import map_util
 
 from character import Character
 from game_time import calendar
@@ -46,7 +47,8 @@ class PartyMember(Character):
         self.mon = mon
         self.name = mon.name
     def update(self, scene):
-        if geometry.distance(self.position, scene.hero.position) > 4:
+        if geometry.distance(self.position, scene.hero.position) > 4\
+                and self in adventure.current.map_party:
             self.move_towards(scene, scene.hero.position)
         elif geometry.distance(self.position, scene.hero.position) < 2:
             self.move_away_from(scene, scene.hero.position)

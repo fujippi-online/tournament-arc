@@ -4,6 +4,7 @@ It's just as poorly written as the others.
 Why do I always do this to myself? Why is it always menus?
 """
 import control
+import adventure
 import core
 import textwrap
 import geometry
@@ -86,6 +87,10 @@ class MessageBox:
         if self.current_page < len(self.pages):
             draw_textbox((self.x, self.y, self.w, self.h+2),
                     [self.pages[self.current_page]])
+
+def msg_box(text):
+    m = MessageBox(text, bg = adventure.current.scene)
+    control.takeover(m)
 
 class InputBox:
     def __init__(self, prompt, bg = None):
